@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "description": "Stable layout area identifiers; no personal content",
+  "pages": {
+    "home": "index.html",
+    "experience_detail": "experience.html"
+  },
+  "areas": [
+    {
+      "code": "HOME",
+      "html_id": "home",
+      "label": "Introduction",
+      "page": "home",
+      "order": 1,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": null
+    },
+    {
+      "code": "ABOUT",
+      "html_id": "about",
+      "label": "About Me",
+      "page": "home",
+      "order": 2,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": null
+    },
+    {
+      "code": "FOCUS",
+      "html_id": "research",
+      "label": "Areas of Focus",
+      "page": "home",
+      "order": 3,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "focus"
+    },
+    {
+      "code": "EXPERIENCE",
+      "html_id": "experience",
+      "label": "Professional Experience",
+      "page": "home",
+      "order": 4,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "experience"
+    },
+    {
+      "code": "EDUCATION",
+      "html_id": "education",
+      "label": "Academic Journey",
+      "page": "home",
+      "order": 5,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "education"
+    },
+    {
+      "code": "LANGUAGES",
+      "html_id": "languages",
+      "label": "Language Proficiency",
+      "page": "home",
+      "order": 6,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "languages"
+    },
+    {
+      "code": "CREDENTIALS",
+      "html_id": "credentials",
+      "label": "Credentials & Recognition",
+      "page": "home",
+      "order": 7,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "credentials"
+    },
+    {
+      "code": "HOBBIES",
+      "html_id": "hobbies",
+      "label": "Beyond Work",
+      "page": "home",
+      "order": 8,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": "hobbies"
+    },
+    {
+      "code": "CONTACT",
+      "html_id": "contact",
+      "label": "Contact",
+      "page": "home",
+      "order": 9,
+      "fields": [
+        "heading",
+        "description"
+      ],
+      "collection": null
+    },
+    {
+      "code": "EXPERIENCE_DETAIL",
+      "html_id": null,
+      "label": "Detailed Experience Page",
+      "page": "experience_detail",
+      "order": 1,
+      "collection": "experience",
+      "fields": [
+        "heading",
+        "introduction"
+      ]
+    }
+  ]
+}
