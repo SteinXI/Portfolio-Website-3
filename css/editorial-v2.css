@@ -1,0 +1,295 @@
+/* FIVE-COLOUR ARCHITECTURAL PORTFOLIO — approved October 2026
+   White throughout, original-content preserving, responsive redesign. */
+:root{--white:#fff;--black:#181B20;--grey:#616771;--red:#C51F35;--navy:#193F84;--cyan:#0099B4;--green:#00865F;--gold:#C49400;--gold-dark:#876700;--light-border:#D5D8DB;--nav-space:clamp(38px,5.5vw,88px)}
+html{scroll-padding-top:32px}
+body,body:not(.experience-standalone){background:#fff;color:var(--black);font-family:Arial,Helvetica,sans-serif}
+body:not(.experience-standalone) .Intro{background:#fff!important;border-bottom:1px solid #D5D8DB;position:relative}
+body:not(.experience-standalone) .Intro::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--red) 0 20%,var(--navy) 20% 40%,var(--cyan) 40% 60%,var(--green) 60% 80%,var(--gold) 80% 100%)}
+body:not(.experience-standalone) .Intro-box{background:#fff;max-width:1500px;margin:0 auto;padding:clamp(75px,8vw,130px) clamp(28px,7.5vw,125px);min-height:96svh;justify-content:center;gap:clamp(22px,4vh,43px);display:grid;grid-template-columns:minmax(0,1.55fr) minmax(220px,.85fr);align-content:center;align-items:center}
+body:not(.experience-standalone) .Intro-label{grid-column:1/-1;color:var(--red);font-size:.76rem;letter-spacing:.19em}
+body:not(.experience-standalone) .Intro h1{grid-column:1;font-family:"Bodoni Moda",Georgia,serif;color:var(--black);font-size:clamp(4.6rem,9vw,9rem);line-height:1.01;letter-spacing:-.055em;max-width:860px}
+body:not(.experience-standalone) .Intro-description{grid-column:2;grid-row:2/4;border-left:1px solid #D5D8DB;padding:30px 0 30px clamp(22px,3vw,52px);font-size:clamp(1.04rem,1.4vw,1.27rem);line-height:1.8;max-width:440px}
+body:not(.experience-standalone) .Intro-interests{grid-column:1;grid-row:3;gap:12px 19px}
+body:not(.experience-standalone) .Intro-interests span{font-size:.9rem;font-weight:650;border-bottom-width:3px}
+body:not(.experience-standalone) .Intro-buttons{grid-column:1/-1;gap:12px}
+body:not(.experience-standalone) .Intro-buttons a{min-height:46px;border-radius:0}
+body:not(.experience-standalone) .Intro-button-primary{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important}
+body:not(.experience-standalone) .Intro-button-secondary{background:#fff!important;border-color:var(--red)!important;color:var(--red)!important}
+body:not(.experience-standalone) .page-content,body:not(.experience-standalone) .content-section,body:not(.experience-standalone) .focus-section,body:not(.experience-standalone) .languages-section,body:not(.experience-standalone) .contact-section{background:#fff!important;color:var(--black)!important}
+body:not(.experience-standalone) .focus-section::before,body:not(.experience-standalone) .languages-section::before,body:not(.experience-standalone) .contact-section::before{background:#fff!important}
+body:not(.experience-standalone) .content-section{padding-top:clamp(64px,8vw,115px);padding-bottom:clamp(68px,8vw,115px)}
+body:not(.experience-standalone) .about-section::after,body:not(.experience-standalone) .focus-section::after,body:not(.experience-standalone) .experience-section::after,body:not(.experience-standalone) .education-section::after,body:not(.experience-standalone) .languages-section::after,body:not(.experience-standalone) .credentials-section::after,body:not(.experience-standalone) .hobbies-section::after{height:1px;background:#D5D8DB}
+body:not(.experience-standalone) .content-section h2{font-family:"Bodoni Moda",Georgia,serif;color:var(--black);font-weight:450;letter-spacing:-.045em;line-height:1.1}
+body:not(.experience-standalone) .content-section p{color:#424953}
+body:not(.experience-standalone) .about-label,body:not(.experience-standalone) .focus-label,body:not(.experience-standalone) .experience-label,body:not(.experience-standalone) .education-label,body:not(.experience-standalone) .languages-label,body:not(.experience-standalone) .credentials-label,body:not(.experience-standalone) .hobbies-label,body:not(.experience-standalone) .contact-label{font-size:.78rem;letter-spacing:.16em}
+body:not(.experience-standalone) .about-label{color:var(--navy)!important}
+body:not(.experience-standalone) .focus-label{color:var(--cyan)!important}
+body:not(.experience-standalone) .experience-label{color:var(--green)!important}
+body:not(.experience-standalone) .education-label{color:var(--gold-dark)!important}
+body:not(.experience-standalone) .languages-label{color:var(--red)!important}
+body:not(.experience-standalone) .credentials-label{color:var(--navy)!important}
+body:not(.experience-standalone) .hobbies-label{color:var(--cyan)!important}
+body:not(.experience-standalone) .contact-label{color:var(--red)!important}
+body:not(.experience-standalone) .about-layout{grid-template-columns:minmax(220px,1fr) minmax(0,1.4fr);gap:clamp(28px,6vw,100px)}
+body:not(.experience-standalone) .about-heading::after{background:var(--navy)}
+body:not(.experience-standalone) .about-title-accent,body:not(.experience-standalone) .focus-title-accent,body:not(.experience-standalone) .experience-title-accent,body:not(.experience-standalone) .education-title-accent,body:not(.experience-standalone) .languages-title-accent,body:not(.experience-standalone) .credentials-title-accent{color:inherit}
+body:not(.experience-standalone) .focus-heading{max-width:1100px}
+body:not(.experience-standalone) .focus-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;border-left:1px solid #D5D8DB;border-top:1px solid #D5D8DB;overflow:visible}
+body:not(.experience-standalone) .focus-item{grid-column:span 2;min-width:0;background:#fff!important;color:var(--black)!important;border:0!important;border-right:1px solid #D5D8DB!important;border-bottom:1px solid #D5D8DB!important;border-radius:0!important;padding:clamp(19px,2.8vw,37px)!important;box-shadow:none!important;transform:none!important;min-height:225px;display:flex;flex-direction:column;gap:13px;justify-content:flex-start}
+body:not(.experience-standalone) .focus-item:nth-child(-n+2){grid-column:span 3}
+body:not(.experience-standalone) .focus-number{display:none!important}
+body:not(.experience-standalone) .focus-item::before{content:"";display:block;position:static!important;width:48px;height:4px;flex:none;background:var(--red);border:0!important;transform:none!important}
+body:not(.experience-standalone) .focus-item:nth-child(2)::before{background:var(--navy)}
+body:not(.experience-standalone) .focus-item:nth-child(3)::before{background:var(--cyan)}
+body:not(.experience-standalone) .focus-item:nth-child(4)::before{background:var(--green)}
+body:not(.experience-standalone) .focus-item:nth-child(5)::before{background:var(--gold)}
+body:not(.experience-standalone) .focus-item:nth-child(6)::before{background:var(--navy)}
+body:not(.experience-standalone) .focus-item h3{color:var(--black)!important;max-width:30ch;font-size:clamp(1.13rem,1.55vw,1.43rem);line-height:1.3}
+body:not(.experience-standalone) .focus-item p{color:#525B64!important;font-size:.94rem;line-height:1.7}
+body:not(.experience-standalone) .focus-item:hover{background:#FAFAFA!important}
+body:not(.experience-standalone) .experience-list{border-top:1px solid #D5D8DB}
+body:not(.experience-standalone) .experience-entry{border-bottom:1px solid #D5D8DB;background:#fff}
+body:not(.experience-standalone) .experience-entry:hover{background:#FCFCFC}
+body:not(.experience-standalone) .education-list{border-top:1px solid #D5D8DB}
+body:not(.experience-standalone) .education-entry{border-color:#D5D8DB}
+body:not(.experience-standalone) .language-grid{background:#fff!important;border-top:1px solid #D5D8DB;border-bottom:1px solid #D5D8DB;gap:0}
+body:not(.experience-standalone) .language-cell{background:#fff!important;color:var(--black)!important;border-color:#D5D8DB!important;border-radius:0!important;box-shadow:none!important}
+body:not(.experience-standalone) .language-cell h3{color:var(--black)!important}
+body:not(.experience-standalone) .language-cell p,body:not(.experience-standalone) .language-level{color:#616771!important}
+body:not(.experience-standalone) .language-glyph{color:var(--red)!important;opacity:.8}
+body:not(.experience-standalone) .credentials-tab{border-color:#D5D8DB;background:#fff;color:var(--black)}
+body:not(.experience-standalone) .credentials-tab[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+body:not(.experience-standalone) .credentials-tab:hover:not([aria-selected="true"]){background:#f7f7f7}
+body:not(.experience-standalone) .credentials-section .credential-item{border-color:#D5D8DB}
+body:not(.experience-standalone) .contact-section{border-top:1px solid #D5D8DB}
+body:not(.experience-standalone) .contact-section h2{font-family:"Bodoni Moda",Georgia,serif;font-size:clamp(3.3rem,7vw,7rem)}
+body:not(.experience-standalone) .contact-section a{color:var(--red)}
+body:not(.experience-standalone) .contact-section p{color:#424953!important}
+body:not(.experience-standalone) .floating-nav{background:#fff;border:1px solid #D5D8DB;box-shadow:0 8px 30px rgba(12,24,38,.09)}
+body:not(.experience-standalone) .floating-nav a.active{background:var(--red);color:#fff}
+body:not(.experience-standalone) .floating-nav a:hover{background:var(--navy);color:#fff}
+body:not(.experience-standalone) > .site-footer{background:#fff;color:var(--black);border-top:4px solid var(--red)}
+body:not(.experience-standalone) > .site-footer a{color:var(--navy)}
+/* Detailed experience page: shared white-based design identity */
+.experience-standalone,.experience-standalone .experience-detail-page{background:#fff;color:var(--black)}
+.experience-standalone .experience-page-header h1,.experience-standalone .experience-skills-section h2,.experience-standalone .experience-languages-section h2,.experience-standalone .experience-contact-section h2{font-family:"Bodoni Moda",Georgia,serif;color:var(--black)}
+.experience-standalone .experience-contact-links a:first-child{background:var(--red);border-color:var(--red);color:#fff}
+.experience-standalone .experience-contact-links a{color:var(--red);border-color:var(--red)}
+.experience-standalone .experience-contact-links a:first-child:hover{background:#9F1930;color:#fff}
+.experience-standalone .experience-detail-footer{background:#fff}
+@media(max-width:900px){
+ body:not(.experience-standalone) .Intro-box{grid-template-columns:minmax(0,1fr) minmax(190px,.8fr);padding-left:clamp(30px,7vw,65px);padding-right:clamp(30px,7vw,65px)}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(3.7rem,8vw,6rem)}
+ body:not(.experience-standalone) .focus-item{grid-column:span 3}
+ body:not(.experience-standalone) .focus-item:nth-child(-n+2){grid-column:span 3}
+}
+@media(max-width:768px){
+ body:not(.experience-standalone) .Intro-box{display:flex;min-height:100svh;align-items:stretch;gap:23px;padding:92px 25px 60px}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(3.65rem,12vw,6rem)}
+ body:not(.experience-standalone) .Intro-description{border-left:0;border-top:1px solid #D5D8DB;padding:20px 0 0;max-width:630px}
+ body:not(.experience-standalone) .Intro-interests{order:2}
+ body:not(.experience-standalone) .Intro-description{order:3}
+ body:not(.experience-standalone) .Intro-buttons{order:4}
+ body:not(.experience-standalone) .content-section{padding-top:60px;padding-bottom:65px}
+ body:not(.experience-standalone) .focus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body:not(.experience-standalone) .focus-item,body:not(.experience-standalone) .focus-item:nth-child(-n+2){grid-column:span 1;min-height:200px;padding:20px!important}
+ body:not(.experience-standalone) .focus-item h3{font-size:1.1rem}
+}
+@media(max-width:520px){
+ body:not(.experience-standalone) .focus-grid{grid-template-columns:1fr}
+ body:not(.experience-standalone) .focus-item,body:not(.experience-standalone) .focus-item:nth-child(-n+2){grid-column:span 1;min-height:0;padding:22px!important}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(3.3rem,13vw,4.6rem)}
+ body:not(.experience-standalone) .language-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){body:not(.experience-standalone) .focus-item{transition:none!important}}
+
+
+/* ACCESSIBILITY PATCH — dark-mode remnants on white backgrounds */
+body:not(.experience-standalone) .focus-introduction,
+body:not(.experience-standalone) .languages-introduction,
+body:not(.experience-standalone) .contact-intro{color:#424953!important}
+body:not(.experience-standalone) .focus-section h2,
+body:not(.experience-standalone) .languages-section h2,
+body:not(.experience-standalone) .contact-section h2{color:#181B20!important}
+body:not(.experience-standalone) .contact-title-accent{color:var(--red)!important}
+body:not(.experience-standalone) .contact-primary-address,
+body:not(.experience-standalone) .contact-method-value{color:#181B20!important}
+body:not(.experience-standalone) .contact-primary .contact-method-label{color:#5B626B!important}
+body:not(.experience-standalone) .contact-method-label{color:#006D82!important}
+body:not(.experience-standalone) .contact-primary,
+body:not(.experience-standalone) .contact-method{color:#181B20!important;border-color:#D5D8DB!important}
+body:not(.experience-standalone) .contact-primary:hover .contact-primary-address,
+body:not(.experience-standalone) .contact-method:hover .contact-method-value{color:var(--navy)!important}
+body:not(.experience-standalone) .language-stars .star-filled{color:#AC8200!important}
+body:not(.experience-standalone) .language-stars .star-empty{color:#6A7078!important}
+body:not(.experience-standalone) .focus-item h3,
+body:not(.experience-standalone) .focus-item p{color:#20242B!important}
+body:not(.experience-standalone) .focus-item p{color:#4E5660!important}
+
+
+/* WHITE-BACKGROUND CONTRAST AUDIT — October 2026 */
+body:not(.experience-standalone) .focus-section,
+body:not(.experience-standalone) .languages-section,
+body:not(.experience-standalone) .contact-section{color:#181B20!important}
+body:not(.experience-standalone) .focus-section .focus-introduction,
+body:not(.experience-standalone) .languages-section .languages-introduction,
+body:not(.experience-standalone) .contact-section .contact-intro{color:#303A45!important}
+body:not(.experience-standalone) .focus-section h2,
+body:not(.experience-standalone) .languages-section h2,
+body:not(.experience-standalone) .contact-section h2{color:#181B20!important}
+body:not(.experience-standalone) .contact-primary,
+body:not(.experience-standalone) .contact-method{background:#fff!important;color:#181B20!important}
+body:not(.experience-standalone) .contact-primary-address,
+body:not(.experience-standalone) .contact-method-value{color:#181B20!important}
+body:not(.experience-standalone) .contact-primary .contact-method-label{color:#4B5360!important}
+body:not(.experience-standalone) .contact-primary .contact-link-arrow{color:var(--red)!important}
+body:not(.experience-standalone) > .site-footer,
+body:not(.experience-standalone) > .site-footer .footer-inner{background:#fff!important;color:#181B20!important}
+body:not(.experience-standalone) > .site-footer .footer-name{color:#181B20!important}
+body:not(.experience-standalone) > .site-footer .footer-copyright{color:#4B5360!important}
+body:not(.experience-standalone) > .site-footer .footer-back-top{color:var(--navy)!important}
+body:not(.experience-standalone) > .site-footer .footer-back-top:hover{color:var(--red)!important}
+body:not(.experience-standalone) .contact-title-accent{color:var(--red)!important}
+body:not(.experience-standalone) .focus-item p{color:#414A55!important}
+body:not(.experience-standalone) .language-cell .language-level{color:#414A55!important}
+
+
+/* LAYOUT REFINEMENT — based on 13-page print review (Oct 2026)
+   Keep the original five-colour palette and all existing content. */
+@media screen and (min-width:769px){
+ body:not(.experience-standalone){--nav-space:116px}
+ body:not(.experience-standalone) .floating-nav{left:18px;width:64px}
+ body:not(.experience-standalone) .page-content{padding-left:var(--nav-space)}
+ body:not(.experience-standalone) .Intro-box{padding-left:max(140px,calc(var(--nav-space) + 38px));padding-right:clamp(48px,6vw,110px);grid-template-columns:minmax(0,1.35fr) minmax(275px,.9fr);column-gap:clamp(35px,5vw,85px)}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(4rem,7.2vw,7.6rem)}
+ body:not(.experience-standalone) .Intro-description{max-width:510px;padding-left:clamp(20px,2.5vw,42px)}
+ body:not(.experience-standalone) .content-section{padding-left:clamp(36px,5vw,80px);padding-right:clamp(40px,7vw,110px)}
+}
+body:not(.experience-standalone) .Intro-description{font-size:clamp(.96rem,1.15vw,1.06rem)!important;line-height:1.72;color:#303A45}
+body:not(.experience-standalone) .content-section p,
+body:not(.experience-standalone) .experience-responsibilities,
+body:not(.experience-standalone) .education-details p,
+body:not(.experience-standalone) .hobby-card p{font-size:clamp(.91rem,1.05vw,1rem);line-height:1.72}
+body:not(.experience-standalone) .focus-introduction,
+body:not(.experience-standalone) .languages-introduction{font-size:clamp(.96rem,1.08vw,1.06rem)!important;line-height:1.65}
+body:not(.experience-standalone) .about-biography p{font-size:clamp(.95rem,1.05vw,1.02rem);line-height:1.76}
+body:not(.experience-standalone) .about-layout{grid-template-columns:minmax(240px,.88fr) minmax(0,1.38fr);align-items:start}
+body:not(.experience-standalone) .about-section h2{font-size:clamp(2.8rem,4.2vw,4.5rem)}
+body:not(.experience-standalone) .content-section{scroll-margin-top:20px}
+body:not(.experience-standalone) .focus-grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+body:not(.experience-standalone) .focus-item:nth-child(1),
+body:not(.experience-standalone) .focus-item:nth-child(2){grid-column:span 3}
+body:not(.experience-standalone) .focus-item:nth-child(3),
+body:not(.experience-standalone) .focus-item:nth-child(4),
+body:not(.experience-standalone) .focus-item:nth-child(5),
+body:not(.experience-standalone) .focus-item:nth-child(6){grid-column:span 3}
+body:not(.experience-standalone) .focus-item{min-height:200px}
+body:not(.experience-standalone) .experience-entry{grid-template-columns:minmax(175px,.72fr) minmax(0,1.8fr);gap:clamp(25px,4vw,70px);padding:24px 0 27px;border-top:0}
+body:not(.experience-standalone) .experience-list{margin-top:35px}
+body:not(.experience-standalone) .experience-detail h4{font-size:clamp(1.06rem,1.3vw,1.25rem);line-height:1.4}
+body:not(.experience-standalone) .experience-responsibilities{line-height:1.6}
+body:not(.experience-standalone) .experience-tags{margin-top:13px}
+body:not(.experience-standalone) .education-entry{row-gap:12px}
+body:not(.experience-standalone) .credentials-panel{gap:0}
+body:not(.experience-standalone) .credential-item{border:0!important;border-bottom:1px solid #D5D8DB!important;border-radius:0!important;padding:15px 12px!important;gap:14px;background:#fff!important}
+body:not(.experience-standalone) .credential-item::before{flex:0 0 3px;width:3px;background:var(--gold);border-radius:0}
+body:not(.experience-standalone) .credential-item:hover{background:#FAFAFA!important}
+body:not(.experience-standalone) .credentials-tabs{margin-bottom:8px}
+body:not(.experience-standalone) .contact-intro{font-size:clamp(1.2rem,1.9vw,1.75rem)!important;line-height:1.48}
+body:not(.experience-standalone) .contact-section{padding-bottom:clamp(56px,6vw,95px)}
+body:not(.experience-standalone) > .site-footer .footer-inner{min-height:74px;padding-block:22px}
+@media screen and (min-width:769px) and (max-width:1030px){
+ body:not(.experience-standalone) .Intro-box{grid-template-columns:minmax(0,1fr) minmax(235px,.85fr)}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(3.7rem,6.4vw,5.5rem)}
+}
+@media screen and (max-width:768px){
+ body:not(.experience-standalone) .page-content{padding-left:0}
+ body:not(.experience-standalone) .Intro-box{padding-inline:clamp(22px,5vw,36px)}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(3.45rem,11vw,5.8rem)}
+ body:not(.experience-standalone) .content-section{padding-inline:clamp(23px,5vw,42px)}
+ body:not(.experience-standalone) .focus-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body:not(.experience-standalone) .focus-item:nth-child(n){grid-column:span 1}
+ body:not(.experience-standalone) .experience-entry{grid-template-columns:1fr;gap:12px}
+ body:not(.experience-standalone) .about-layout{grid-template-columns:1fr;gap:28px}
+}
+@media screen and (max-width:520px){
+ body:not(.experience-standalone) .focus-grid{grid-template-columns:1fr}
+ body:not(.experience-standalone) .focus-item:nth-child(n){grid-column:span 1}
+}
+@media print{
+ @page{margin:15mm}
+ html,body{scroll-behavior:auto!important}
+ body{font-size:10pt!important}
+ .skip-link,.floating-nav,.mobile-menu-button,.nav-tooltip{display:none!important}
+ body:not(.experience-standalone) .page-content{padding-left:0!important}
+ body:not(.experience-standalone) .Intro-box{min-height:auto!important;padding:24px 20px!important;grid-template-columns:1.4fr 1fr!important}
+ body:not(.experience-standalone) .Intro h1{font-size:58pt!important}
+ body:not(.experience-standalone) .content-section{padding:28px 20px!important;break-inside:auto}
+ body:not(.experience-standalone) .focus-item,
+ body:not(.experience-standalone) .credential-item,
+ body:not(.experience-standalone) .experience-entry,
+ body:not(.experience-standalone) .education-entry,
+ body:not(.experience-standalone) .language-cell{break-inside:avoid}
+ body:not(.experience-standalone) .contact-section{padding-bottom:30px!important}
+ body:not(.experience-standalone) > .site-footer{padding:8px 20px!important}
+ body:not(.experience-standalone) > .site-footer .footer-inner{min-height:0!important;padding:10px 0!important}
+}
+
+
+/* BALANCED EDITORIAL RHYTHM — replaces over-compressed October revision.
+   Intent: white five-colour architecture; readable body; individual section pacing. */
+@media screen{
+ body:not(.experience-standalone) .Intro,
+ body:not(.experience-standalone) .Intro-box{min-height:100svh}
+ body:not(.experience-standalone) .content-section{padding-top:clamp(49px,5.1vw,76px)!important;padding-bottom:clamp(51px,5.5vw,80px)!important}
+ body:not(.experience-standalone) .content-section h2{margin-bottom:clamp(16px,1.75vw,25px)!important}
+ body:not(.experience-standalone) .about-label,
+ body:not(.experience-standalone) .focus-label,
+ body:not(.experience-standalone) .experience-label,
+ body:not(.experience-standalone) .education-label,
+ body:not(.experience-standalone) .languages-label,
+ body:not(.experience-standalone) .credentials-label,
+ body:not(.experience-standalone) .hobbies-label,
+ body:not(.experience-standalone) .contact-label{margin-bottom:14px!important;font-size:.77rem!important;line-height:1.5}
+ body:not(.experience-standalone) .content-section p,
+ body:not(.experience-standalone) .experience-responsibilities,
+ body:not(.experience-standalone) .education-details p,
+ body:not(.experience-standalone) .hobby-card p{font-size:clamp(.97rem,1.04vw,1rem)!important;line-height:1.64!important}
+ body:not(.experience-standalone) .about-biography p{font-size:clamp(.97rem,1.04vw,1rem)!important;line-height:1.65!important;margin-bottom:16px}
+ body:not(.experience-standalone) .Intro-description{font-size:clamp(1rem,1.14vw,1.075rem)!important;line-height:1.62!important}
+ body:not(.experience-standalone) .focus-introduction,
+ body:not(.experience-standalone) .languages-introduction{font-size:clamp(.98rem,1.06vw,1.045rem)!important;line-height:1.63!important}
+ body:not(.experience-standalone) .focus-grid{margin-top:clamp(22px,2.4vw,35px)!important}
+ body:not(.experience-standalone) .focus-item{min-height:0!important;padding:clamp(20px,2.3vw,33px)!important;gap:13px!important}
+ body:not(.experience-standalone) .focus-item h3{font-size:clamp(1.12rem,1.37vw,1.32rem)!important;line-height:1.34!important;margin-bottom:5px}
+ body:not(.experience-standalone) .focus-item p{font-size:clamp(.94rem,1.02vw,1rem)!important;line-height:1.61!important}
+ body:not(.experience-standalone) .experience-list{margin-top:clamp(21px,2.5vw,35px)!important}
+ body:not(.experience-standalone) .experience-entry{padding:22px 0 25px!important}
+ body:not(.experience-standalone) .experience-detail h4{font-size:clamp(1.12rem,1.32vw,1.28rem)!important;line-height:1.4!important;margin-bottom:9px!important}
+ body:not(.experience-standalone) .experience-responsibilities{line-height:1.6!important}
+ body:not(.experience-standalone) .experience-tag{font-size:.78rem!important}
+ body:not(.experience-standalone) .education-entry{row-gap:9px}
+ body:not(.experience-standalone) .education-details h3{font-size:clamp(1.11rem,1.35vw,1.3rem)!important;line-height:1.42}
+ body:not(.experience-standalone) .language-cell{padding:20px 10px!important}
+ body:not(.experience-standalone) .language-cell h3{font-size:1.12rem!important}
+ body:not(.experience-standalone) .language-level{font-size:.94rem!important;line-height:1.45!important;margin-top:6px}
+ body:not(.experience-standalone) .language-stars{padding-top:12px}
+ body:not(.experience-standalone) .credentials-tabs{margin-top:27px!important}
+ body:not(.experience-standalone) .credential-item{padding:15px 12px!important}
+ body:not(.experience-standalone) .credential-item h3{font-size:1.03rem!important;line-height:1.45!important}
+ body:not(.experience-standalone) .credential-issuer,
+ body:not(.experience-standalone) .credential-year{font-size:.78rem!important;line-height:1.5!important}
+ body:not(.experience-standalone) .hobbies-grid{margin-top:20px}
+ body:not(.experience-standalone) .hobby-card{padding:17px 0!important}
+ body:not(.experience-standalone) .contact-intro{font-size:clamp(1.18rem,1.7vw,1.6rem)!important;line-height:1.48!important}
+ body:not(.experience-standalone) .contact-details{margin-top:clamp(25px,3vw,43px)!important}
+ body:not(.experience-standalone) .contact-primary{padding:18px 12px 20px 22px}
+}
+@media screen and (min-width:769px){
+ body:not(.experience-standalone) .Intro-box{grid-template-columns:minmax(0,1.25fr) minmax(300px,.85fr);column-gap:clamp(32px,4.3vw,72px);padding-top:75px;padding-bottom:75px}
+ body:not(.experience-standalone) .Intro h1{font-size:clamp(4.4rem,7.7vw,8rem)}
+}
+@media screen and (max-width:768px){
+ body:not(.experience-standalone) .Intro-box{display:flex;flex-direction:column;justify-content:center;min-height:100svh;padding-block:85px 55px;gap:22px}
+ body:not(.experience-standalone) .content-section{padding-block:45px 52px!important}
+}
