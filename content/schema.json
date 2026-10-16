@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "description": "Proposed content shape; not an active Supabase schema",
+  "area_fields": {
+    "heading": "string",
+    "description": "string",
+    "visible": "boolean",
+    "sort_order": "integer"
+  },
+  "entry_fields": {
+    "id": "string",
+    "area_code": "string",
+    "title": "string",
+    "subtitle": "string",
+    "description": "string",
+    "start_date": "string|null",
+    "end_date": "string|null",
+    "location": "string|null",
+    "visible": "boolean",
+    "sort_order": "integer"
+  },
+  "note": "Store actual records later; EXPERIENCE and EXPERIENCE_DETAIL share the same records. No private values belong in this public repository."
+}
