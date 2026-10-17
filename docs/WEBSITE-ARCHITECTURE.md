@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.6 (responsive sizing recommendations)  
+**Document version:** 1.7 (sizing review and spacing proposal)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -697,6 +697,106 @@ Avoid defining every section as a screen tall. **Exception:** an introduction/he
 ### 7D.7 Remaining sizing decisions
 
 Finalise gutters/padding in the spacing stage; decide allowable per-node sizing controls and exact breakpoint/test matrix; set minimum interactive target sizes in accessibility review; define how editors preview narrow-width compositions; check desktop/mobile parity against Portfolio-Website-2. Full-bleed hero, image aspect ratio policies and advanced overlays are optional designs, not default behaviours for all sections.
+
+### 7D.8 Additional sizing considerations identified in review
+
+These implementation checks supplement, rather than replace, the existing sizing decisions:
+
+- Very narrow **nested groups** should use container-based constraints and a safe stacked fallback; viewport breakpoints alone may not reflect the space actually available to a deeply nested element.
+- Reserve image/media aspect ratios or space where feasible so delayed loading does not cause unnecessary **layout shifts**.
+- Test increased text spacing, browser zoom, extremely long labels and reduced viewport height; never force a fixed height that clips essential content.
+
+## 7E. Spacing system — compact, default-first proposal
+
+**Status:** The default **zero inter-section gap** is an established preference. The numeric sizes below are **recommended starting points for review**, not final design tokens or implemented CSS.
+
+### 7E.1 Terminology and ownership
+
+- **Gap:** Space *between siblings*. Prefer the **parent container** as the single owner of this value (including row/column/grid gaps).
+- **Padding:** Space *inside* a page, section, group or element boundary. Each container owns its own padding.
+- **Margin:** Space *outside* an item. Discourage arbitrary sibling margins because they can double-count or collapse unexpectedly; allow only controlled exceptions.
+- **Line height:** Space within text lines, governed by typography rather than container gap.
+- **Paragraph spacing:** Space between prose paragraphs in a rich-text block. Managed by the rich-text renderer; not simultaneously by competing child margins.
+- **Page gutter:** Horizontal safe space keeping readable content away from viewport edges. Apply at one wrapper level rather than adding duplicate page + section + group gutters.
+
+A **zero gap between sections** does not mean zero section padding. Adjacent section surfaces may touch while their internal content is comfortably inset.
+
+### 7E.2 Proposed spacing tokens (editable global values in Supabase)
+
+| Token | Starting value (16px root) | Purpose |
+| --- | --- | --- |
+| `space_0` | `0` | No gap |
+| `space_xs` | `0.25rem` = 4px | Tiny icon/label separation |
+| `space_s` | `0.5rem` = 8px | Tight related items |
+| `space_m` | `0.75rem` = 12px | Heading/body or paragraph group |
+| `space_l` | `1rem` = 16px | Standard group/element gap |
+| `space_xl` | `1.5rem` = 24px | Section breathing room |
+| `space_2xl` | `2rem` = 32px | Wide spacing |
+| `space_3xl` | `3rem` = 48px | Special spacious layout |
+| `space_4xl` | `4rem` = 64px | Rare oversized emphasis |
+
+These are reusable spacing values rather than nine mandatory choices in every editor control. Exact token names and allowed custom range can be revised during implementation. Treat `0` as a valid explicit setting.
+
+### 7E.3 Recommended defaults by structural level
+
+| Level | Gap / external space | Padding / gutter | Reason |
+| --- | --- | --- | --- |
+| **Site** | Owns general spacing scale | No additional mandatory wrapper padding | Avoid hidden double spacing |
+| **Page/subpage** | Vertical gap between sections = **0** | One responsive inline gutter: 16px narrow, ~24px medium, up to ~32px wide; full-bleed section surfaces can extend beyond inner content wrapper | Preserve full-width backgrounds and readable content |
+| **Section** | Owns child gap, proposed 16px | Compact vertical padding proposed ~16px narrow / ~24px wide; optional overrides | Visual separation without large blank areas |
+| **Group** | Gap between direct children proposed 16px | Default **0**; styled surfaces/cards may select 16px or another token | Prevent nested padding accumulating |
+| **Element** | Default external margin **0**; sibling gap owned by parent | Type-specific internal padding only when appropriate | Avoid double gaps |
+| **Rich text** | Paragraph gap proposed 12px; headings use consistent type-specific spacing | No inherited container padding solely for text | Readable content without redundant vertical margins |
+
+**Important:** An inner content gutter should not be blindly added again by each nested section/group. In a full-bleed section, the section background spans the available width while the shared content wrapper constrains paragraph width.
+
+### 7E.4 Gap and override conflict rule
+
+The default between two adjacent sections is **0**. To allow a deliberate exception while avoiding accidental sum-of-margins behaviour, recommend a single boundary resolution:
+
+```text
+effective_boundary_gap = max(
+  parent_default_gap,
+  previous_section.space_after (if set),
+  next_section.space_before (if set)
+)
+```
+
+For example, if the previous section requests 8px after and the next requests 16px before, the boundary has **16px**, not 24px. If none is set, it remains 0. The final code should implement this as one parent-controlled spacing value rather than adjacent browser margins; values must be nonnegative. This is a **proposed policy**, pending approval in the spacing review.
+
+The same rule can be applied to neighbouring elements where before/after overrides are truly necessary, but **prefer just the parent's `gap`** for ordinary rows, grids and stacks.
+
+### 7E.5 Default-first inheritance and exceptions
+
+- **Site defaults** define the spacing scale and ordinary gap/padding tokens.
+- New pages/sections/groups/elements use defaults without requiring manual values.
+- A page or section may set its own child gap or padding, affecting only that scope. It should not rewrite a nested group's internal gap unless the group explicitly inherits a relevant token.
+- A local element can receive custom internal padding where supported, but cannot arbitrarily rewrite its siblings' spacing.
+- `default` means standard prescribed value; `inherit` means follow a documented inheritable token; `custom` means override; `reset` clears override. Explicit 0 must not be mistaken for unset.
+- When a global token changes, components using it update on the next approved static build; custom overrides remain.
+
+### 7E.6 Responsive and logical spacing
+
+- Prefer CSS logical directions (`padding-inline`, `padding-block`, `margin-inline`), so RTL or alternative writing modes do not require hardcoded left/right rules.
+- Consider using `rem`-based responsive gutters/padding, with a small set of approved breakpoints or fluid values.
+- As screen width narrows, reduce excessive horizontal padding before shrinking readable text.
+- A grid/row may alter column count on smaller screens; gap values remain managed by the parent layout.
+- Hidden or archived elements should be removed from normal layout flow without leaving unused reserved gaps; deliberate placeholders are separate.
+- Avoid negative gaps/margins for normal content. Overlaps belong to the separately validated overlay mode.
+- Maintain support for users overriding line-height, paragraph spacing, letter spacing and word spacing without content loss (WCAG 2.2 SC 1.4.12); its test values are **not mandatory default authored spacing**.
+
+### 7E.7 Validation and editorial controls
+
+The future admin interface should offer **Default / Inherit / Custom / Reset** and show a responsive preview.
+
+- Reject non-finite values, invalid units and forbidden negative values.
+- Permit numeric `0`, but never silently interpret it as `inherit`.
+- Warn about duplicate spacing ownership and large gaps from nested containers.
+- Check long paragraphs, empty groups, hidden elements, small-screen reflow, enlarged text and image loading before publishing.
+- Use a coherent published design snapshot with a last-good fallback.
+- Exact numeric caps, responsive interpolation, optional per-side overrides and implementation of the boundary-gap rule remain **pending**.
+
+**Standards/reference:** MDN CSS Gap — https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/gap ; MDN logical margin/padding — https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Logical_properties_and_values/Margins_borders_padding ; MDN margin collapsing — https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Box_model/Margin_collapsing ; W3C WCAG 2.2 text spacing — https://www.w3.org/TR/WCAG22/#text-spacing .
 
 ## 8. Drafts, revisions, history, archive and recovery
 
