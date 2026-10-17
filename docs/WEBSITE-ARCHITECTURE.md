@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.10 (catalogue linked and preservation gate)  
+**Document version:** 1.11 (administration live-preview requirement)  
 **Date:** 17 October 2026  
 **Reviewed:** 18 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
@@ -70,7 +70,7 @@ A successful publication takes a **consistent published snapshot** of content; a
 | Supabase PostgreSQL and Supabase Auth | **Proposed, not provisioned** |
 | Astro static site generator | **Proposed, not installed** |
 | GitHub Actions publish workflow | **Proposed, not configured** |
-| Private content editor and preview interface | **Proposed, not built** |
+| Private content editor and preview interface | **Preview capability selected as requirement; software not built** |
 | Individual building-block catalog and visual variants | **Not finalised** |
 
 ## 3. Repository baseline and separation of responsibilities
@@ -1021,6 +1021,50 @@ The authoritative **source-based inventory of existing section-specific design c
 
 **Status:** Catalogue completed from HTML/CSS/JS source. Visual/screenshots/behavioural parity testing and the final UUID/content mapping are still outstanding. They are implementation validation tasks, **not unresolved logical contradictions in the documented design rules**.
 
+## 7H. Administration preview — agreed requirement, implementation proposed
+
+**Status:** The user approved including a **small live preview area** as a core feature of the future private administration dashboard. The feature is **not built**. Specific layout, controls, rendering technology and exact editor behaviour below are recommendations for implementation and testing.
+
+### 7H.1 Core capability
+
+- Provide a compact **live preview alongside content/design settings**, with a resizable or expandable viewing area rather than forcing every edit into a separate browser tab.
+- Support **Focused Preview** (selected element, group or section) and **Context Preview** (complete page, ancestor surfaces and surrounding content). Context preview is necessary to evaluate inherited colours, adjacent section gaps and layout compatibility.
+- Support **desktop and mobile** viewport modes as baseline; tablet and adjustable-width previews are recommended additional modes. Allow a full-size preview for typography, detail and accessibility inspection.
+- Update from the editor's **current unsaved input state** promptly without forcing database saves or public publication. Saved draft preview must remain available after leaving the page.
+- Distinguish explicitly between **unsaved working changes**, **saved private draft**, **last published version**, and **previous published snapshot**. Include a comparison/reset option for changes to preserved design presets.
+- Preview should include realistic content lengths and preserve the source-based designs described in [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md). Do not apply generic typography/spacing to legacy sections without an explicit redesign decision.
+
+### 7H.2 Rendering fidelity and isolation
+
+- The preview should use the **same validated component library, design tokens, responsive rules and effective style-resolution algorithm** as published output. Avoid a separately hand-styled simulation that diverges from the final site.
+- Prefer a securely isolated **iframe or equivalent rendering boundary** for the preview so the dashboard CSS cannot alter site styles and the page cannot unintentionally change the admin UI. Exact sandbox attributes, origin and messaging protocol must be defined during implementation.
+- A responsive preview must simulate the **actual inner viewport width**, not just visually scale a desktop screenshot smaller; otherwise grid breakpoints and text reflow would be misrepresented.
+- Reproduce relevant interactive behaviour in preview where safe (tabs, navigation and hover/focus), but prevent draft/preview actions from accidentally following destructive or external links. Mark when functionality is intentionally simulated or disabled.
+- Surface warnings for missing assets, low contrast, clipping, inaccessible focus, unsupported combinations or unsaved edits.
+
+### 7H.3 Security and publication boundary
+
+- Preview requests/data are **private and authenticated**. Do not serve unfinished drafts from the public GitHub Pages site or expose private Supabase data through public client bundles.
+- No secret database keys, publishing tokens or unpublished confidential content may be embedded in client-visible files or an unauthenticated preview URL.
+- Use least-privilege draft read/write permissions and secure rendering boundaries. Any temporary preview link, if offered, must be authorised, appropriately limited and revocable.
+- Previewing is **not publishing**. Publication requires explicit approval, full snapshot validation, a static build, and deployment through the protected workflow described in §10.
+- For unsaved changes, in-memory rendering is a possible implementation; for saved drafts, an authenticated preview endpoint/service or secure editor-hosted rendering is a candidate. The precise platform architecture remains undecided.
+
+### 7H.4 Proposed editor layout and release priorities
+
+| Feature | Priority | Notes |
+| --- | --- | --- |
+| Split editor + small live preview | **Core / approved requirement** | Resizable and expandable preferred |
+| Focused section/group/element preview | **Core / approved requirement** | Preview selected content efficiently |
+| Whole-page context preview | **Core / approved requirement** | Check inheritance and adjacency |
+| Desktop/mobile modes | **Core / approved requirement** | Validate real reflow |
+| Private saved draft preview | **Core / approved requirement** | Must not publish automatically |
+| Compare with published version and revert edits | Recommended | Particularly useful for preserved presets |
+| Tablet/custom width | Recommended | Useful for breakpoint verification |
+| Previous-version historical preview | Later | Requires publication snapshot renderer/asset retention |
+
+**Verification before launch:** Check visual parity for existing presets at multiple widths; compare draft/preview/published rendering from an identical approved configuration; test keyboard interactions, text enlargement, media fallback and network/draft failure without exposing private data.
+
 ## 8. Drafts, revisions, history, archive and recovery
 
 Each item receives one permanent UUID and can have multiple revisions. Recommended conceptual storage:
@@ -1099,6 +1143,7 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 | Archiving/history | Persistent UUID, recorded revisions, soft archive proposed |
 | Preserved existing designs | Source-based inventory in [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md); keep intentional layouts, spacing, typography and colour; visual parity still required (§7G.1, §7G.8) |
 | Backgrounds | Site safe base + configurable surface colour, ordered optional decoration layers and readability scrim (§7G.3) |
+| Admin live preview | Agreed core requirement: compact split-screen, focused/context preview, desktop/mobile and private drafts (§7H); implementation not built |
 | Building-block visual system | To be designed step-by-step in a future stage |
 
 ## 13. Risks and matters to decide later
