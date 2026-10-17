@@ -1,8 +1,9 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.8 (background design framework proposal)  
+**Document version:** 1.9 (design consistency and preservation contract)  
 **Date:** 17 October 2026  
+**Reviewed:** 18 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
 **Excluded:** Website modification activity log, chronological deployment notes and individual update records. Maintain those separately if needed.
@@ -301,24 +302,20 @@ Global UI (navigation, footer) may use site tokens and its own component default
 
 ### 7A.2 Resolution and override rules
 
-For each independently configurable style property:
+**Canonical rule:** See §7G.2 for the authoritative property-resolution model; earlier shorthand must not be interpreted as a conflicting CSS cascade algorithm.
 
-1. Start with a **system/default design token** (safe fallback).
-2. Apply the **site theme** token, where provided.
-3. Apply a **parent's inheritable value** where the property is defined as inheritable.
-4. Apply an **explicit local override** on the page, section, group or element.
-5. Apply valid **responsive rules** for the current viewport.
-6. Enforce accessibility and technical constraints (for example minimum legible text size, no unsafe overflow).
+For each design property, the future editor must distinguish:
 
-**Explicit local override wins over inherited values**, unless a defined safety rule prohibits it. Not every property inherits automatically: text colour and typography may inherit, while margins, positioning, padding, fixed height, image crop and display modes require explicit behaviour. The exact per-property inheritance registry is a later design task.
+- **Unspecified / absent:** Store no override; resolve using that *property's documented default policy*. Do **not** assume every absent property inherits the parent's computed value.
+- **`default`:** Use the effective site/theme and type/variant preset as defined for that property. For a heading, this preserves its role-specific typography; a paragraph does not acquire heading typography merely because its parent contains a heading.
+- **`inherit`:** Explicitly follow a permitted *inheritable value or contextual token* from the parent. Not valid for arbitrary properties such as physical width, background paint, padding or layout direction without a defined design-token policy.
+- **`custom`:** Apply an explicit, validated value at its permitted scope.
+- **`reset`:** An editor action that **removes the stored custom setting**, then returns to the documented default policy. Do not persist a fourth competing CSS value called reset.
+- **`0`, `none`, `transparent`:** Valid explicit values for appropriate properties, **not** synonyms for missing, default or inherit.
 
-Distinguish these states:
-- `inherit` / **not set**: use the effective parent/default setting.
-- `override`: use an intentionally chosen value.
-- `none` / `transparent` / `0`: meaningful explicit values, *not* the same as "inherit".
-- `reset`: revert to site/system default, if the editor offers that operation.
+A section may override an inherited **context token** (e.g. foreground text colour), affecting eligible descendants only. It must not unintentionally replace each descendant's component-specific heading size, paragraph size, padding or layout. A deliberately selected component/section preset and an explicit element override are independently supported. All outputs must pass responsive and accessibility validation before publication.
 
-Design properties should live in validated configuration data and design tokens, not be concatenated into unrestricted user-entered CSS.
+Design values must remain structured and validated; do not assemble arbitrary user-provided CSS or embed unrestricted HTML from database values.
 
 ### 7A.3 Scope of configurable properties (requirements, not final defaults)
 
@@ -389,9 +386,9 @@ This clarifies the earlier high-level cascade. It is a **framework proposal**, n
 | Responsive rules | Site-defined breakpoint policy; scoped overrides with validation | Consistent cross-device behaviour |
 | Animations | Respect reduced-motion preference and accessibility fallback | Safety and usability |
 
-**Resolution order for configurable properties:** system fallback → theme token → any applicable inherited value → component preset → local override → responsive rule → accessibility/validation constraints. The exact priority between preset and inherited values must be encoded explicitly per property during implementation; no accidental reliance on CSS source order.
+**Resolution order:** Use the authoritative per-property rule and context-token/role-preset model in §7G.2. This supersedes the earlier informal sequence. Do not infer final precedence from Markdown section order or browser CSS source order.
 
-**Setting states:** `default` uses the component/site specified fallback; `inherit` follows an inheritable parent value; `custom` supplies a validated value; `reset` removes the local setting and restores its documented default mode. Explicit `0`, `none`, and `transparent` are legitimate values, never interpreted as unset.
+**Setting states:** `default`, permitted `inherit`, and `custom` are editor choices; an absent setting uses its property default, and `reset` is an operation clearing the override. Explicit `0`, `none`, and `transparent` are legitimate property values, not setting states. See §7A.2 and §7G.2.
 
 **Important example:** A page with an image background can contain a section with a transparent background so the page image remains visible, while a nested group may paint an opaque colour. Its children do not silently inherit the group’s padding or background-image coordinates.
 
@@ -512,7 +509,7 @@ The full structural path identifies the correct parent and sibling level. The la
 - **Between page sections:** default gap is `0`, per user's selected convention.
 - **Inside a section/group:** padding and child gaps are independently configured; a zero section gap does **not** imply zero internal breathing room.
 - Prefer one responsible owner for each gap (the parent layout) to avoid double margins.
-- Permitting a per-section spacing override requires a clear rule: a section's `space_before` or `space_after` contributes to the relevant boundary; avoid independent adjacent margins adding unpredictably. Exact conflict resolution must be specified in the spacing stage.
+- Permitting a per-section spacing override requires a clear rule: a section's `space_before` or `space_after` contributes to the relevant boundary; avoid independent adjacent margins adding unpredictably. The boundary-gap rule proposed in §7E.4 is the current candidate but not an approved final spacing algorithm.
 - Page margins/gutters, container padding, element margins and adjacent-section gaps are different settings.
 
 ### 7B.7 Visual layering and z-order
@@ -554,7 +551,7 @@ This demonstrates configuration scope only. The final storage schema must use UU
 
 **Validation requirements:** every node kind must be permitted under its parent; no parent loops; no invalid stacking over interface controls; responsive layouts must fit supported viewports; semantic heading order and keyboard interaction must remain logical; media needs fallbacks; editor must reject incompatible layout-property combinations.
 
-**Deferred:** exact breakpoint sizes, supported width fractions, precise row/grid column constraints, element-specific layout compatibility, numeric z-index policy, advanced overlay placements, spacing conflict resolution and final editor controls. These belong in the sizing/spacing/background/element stages, not in the structural framework.
+**Deferred:** exact breakpoint sizes, supported width fractions, precise row/grid column constraints, element-specific layout compatibility, numeric z-index policy, advanced overlay placements, final approval of the proposed §7E.4 boundary-gap algorithm and editor controls. These belong in the sizing/spacing/background/element stages, not in the structural framework.
 
 ## 7C. Design-setting validation and typography proposal
 
@@ -820,14 +817,16 @@ A local background changes only the node's painted box and defined subtree; it m
 
 | Mode | Suggested default/availability | Important constraints |
 | --- | --- | --- |
-| `transparent` / none | Default for most inner surfaces | Reveals rendered surface beneath; contrast must still work |
+| `transparent` | Default base surface for most inner containers | Paints no opaque base fill, so the underlying surface may show through; decorative layers can still exist |
+| `none` (for a decorative layer) | No image/gradient layer | Removes an optional paint layer; different from transparent base colour |
+| `pattern` / `vector` | Optional additional decorative layer | Approved static SVG/pattern assets; validate and sanitise before public output |
 | `solid` | Site always has fallback solid colour; optional at every permitted scope | Use theme colour token as default; support validated custom colour |
 | `gradient` | Optional on site/page/section/group; element-specific where supported | Restrict to validated linear/radial stop definitions rather than arbitrary CSS strings |
 | `image` | Optional decorative background on page/section/group or supported element | File validation, focal point, overlay, dimensions, fallback and optimisation |
 | `animated_image` (GIF or optimised equivalent) | Advanced **opt-in**, not default | Respect reduced-motion preferences; static fallback; performance limits |
 | `video` | **Deferred** as optional background type | If added later, require muted/inert autoplay policy, explicit stop/pause, poster and reduced-motion fallback |
 
-Plain page/section background changes should be easy to make through the future admin interface. Do not require an image or unique colour for every section.
+These types are **available layer ingredients**, not necessarily mutually exclusive surface modes. A surface can combine a base colour, an image or pattern, one or more gradient layers, and a readability scrim. Control ordering explicitly and apply validated limits. Video is still deferred. Plain page/section background changes should remain simple in the admin interface; do not require an image or unique colour for every section.
 
 ### 7F.3 Recommended scope by level
 
@@ -848,8 +847,8 @@ Treat the following as **one surface composition**, not five extra structural no
 ```text
 [ top ]      foreground content: headings, links, cards, controls
              optional readability scrim/tint (between content and media)
-             decorative image/GIF/gradient, if selected
-             base background solid colour (always safe fallback for media)
+             optional ordered decorative layers (gradient, image, GIF or pattern)
+             base background colour (solid safe fallback when media is used)
 [ bottom ]   surface of ancestor visible only through transparency
 ```
 
@@ -890,25 +889,41 @@ Treat the following as **one surface composition**, not five extra structural no
 
 **Agreed architectural direction:** Editable global design defaults, per-node background selections and scoped overrides live in the future Supabase database; the rendering components, allowed property definitions, CSS engine and known-good fallback remain in GitHub.
 
-**Proposed stored configuration example (illustrative only, not final SQL/schema):**
+**Proposed stored composition example (illustrative only, not final SQL/schema):**
 
 ```json
 {
   "background": {
-    "mode": "image",
-    "asset_id": "approved-public-media-id",
-    "fallback_color": "#F5F5F5",
-    "position": {"x": 50, "y": 50},
-    "fit": "cover",
-    "repeat": false,
-    "attachment": "scroll",
-    "scrim": {"color": "#101010", "opacity": 0.45},
-    "motion_fallback_asset_id": "approved-still-image-id"
+    "state": "custom",
+    "base_color": "#F5F5F5",
+    "layers": [
+      {
+        "type": "gradient",
+        "kind": "linear",
+        "direction_deg": 90,
+        "stops": [
+          {"position": 0, "color": "#152B45"},
+          {"position": 100, "color": "#365A77"}
+        ],
+        "opacity": 0.25
+      },
+      {
+        "type": "image",
+        "asset_id": "approved-public-media-id",
+        "fit": "cover",
+        "position": {"x": 50, "y": 50},
+        "repeat": false,
+        "motion_fallback_asset_id": "approved-still-image-id"
+      }
+    ],
+    "scrim": {"color": "#101010", "opacity": 0.45}
   }
 }
 ```
 
-- A background mode can be `default` / `inherit theme token` / `transparent` / `custom`; make these meanings explicit in the editor. Do not conflate a transparent value with missing configuration.
+Layer array order must be defined consistently (proposal: **first = furthest back, last = nearest foreground**, before scrim). The renderer will reverse this ordering if needed to match CSS background list semantics. This example is a candidate only and does not change the existing single-mode JSON scaffolding.
+
+- Distinguish **style state** (`default`/permitted `inherit`/`custom`) from **base surface fill** (`transparent` or colour) and **individual decorative layer types** (`none`, `image`, `gradient`, etc.). An editor reset removes a stored override. Do not conflate transparency with a missing configuration.
 - Prefer storing background media in **Supabase Storage or another explicit public asset pipeline**, with metadata in Supabase. A private storage object cannot simply be linked from a public static site without authorisation. Do not make Supabase service-role keys public.
 - Keep files and settings **versioned** (e.g. immutable asset paths or content-hashed filenames), allowing the exact media asset and settings to be restored for a previous published revision. Avoid overwriting an existing media URL in place and invalidating cache/history.
 - Only publish approved, licenced or owned assets; track attribution/licence where necessary and create accessible fallbacks.
@@ -920,6 +935,83 @@ Treat the following as **one surface composition**, not five extra structural no
 Still undecided: exact colour palette/theme and dark mode; which backgrounds each element category supports; global versus page/section background image presets; image storage and compression pipeline; maximum animated asset size/duration; colour stop limits; responsive crop/focal point behaviour; overlay contrast checking; asset lifetime and build/export approach. These are decisions to make before schema implementation, not present website features.
 
 **References:** MDN CSS `background` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background); MDN CSS `background-size` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-size); MDN CSS `background-image` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-image); W3C WCAG 2.2 (https://www.w3.org/TR/WCAG22/).
+
+## 7G. Cross-cutting design consistency, compatibility and preservation
+
+**Purpose:** Authoritative clarification of cross-cutting design rules reviewed on **18 October 2026**. Where earlier illustrative text differs, this section and the linked specialised sections govern future implementation. **No existing HTML/CSS appearance is changed by this specification.** Numeric tokens and new types remain suggestions until confirmed.
+
+### 7G.1 Preserve intentional designs before normalising
+
+**Selected principle: preserve the current accepted portfolio appearance and behaviour during infrastructure migration**, even when it differs from future reusable defaults. New components may start with simpler defaults; existing sections may use **named, versioned design presets** with approved explicit exceptions.
+
+Observed in Portfolio-Website-3's current CSS/HTML:
+
+| Current design detail | Preservation policy |
+| --- | --- |
+| Near-full-screen editorial introduction; deliberate minimum viewport height | Preserve a named introduction preset. Allow natural expansion for content/zoom; do not force every section to full-screen |
+| Large Bodoni Moda introduction title and editorial section headings | Preserve selected typography presets rather than blindly applying proposed generic H1/H2 values |
+| White-led editorial palette, five-colour accent system and selected divider borders | Preserve the *effective current design*, including the later `editorial-v2.css` overrides; do not revive superseded dark-section declarations from older `style.css` |
+| Special About layout, Focus arrangement, Experience/Education structures, navigation and detailed-experience styling | Capture each as an explicit layout/section preset or composable group structure with visual regression checks |
+| Selected generous section padding | Preserve deliberate current padding in the migrated legacy-section presets; the proposed 16–24px default is for **new generic sections**, not an automatic redesign |
+| Current CSS custom accent colours on education entries | Preserve as validated local colour tokens/overrides in the migrated content and layout mapping |
+| Existing focus/nav/credential interactions | Keep accessible behaviour and check click/keyboard parity before replacing markup or scripts |
+
+The source of truth for visual parity is the **computed result of both stylesheets and HTML at matching viewports**, not the first matching CSS rule in isolation. `style.css` and `editorial-v2.css` contain overlapping declarations and `!important`; do not automatically delete these during structural work. Later refactoring may use CSS cascade layers, but migration itself can change specificity/importance order, so regression tests must demonstrate parity before removing rules. Existing user-approved visual decisions are not silently overridden by global design proposals.
+
+### 7G.2 Authoritative property-resolution algorithm
+
+Apply the following **conceptual** order (application-level design-value resolution, **not** a claim about CSS cascade mechanics):
+
+1. **Safe renderer fallback in GitHub** provides a defined valid value when no stored theme can load.
+2. **Published site theme in Supabase** selects global named tokens (including light/dark palette if approved later).
+3. **Ancestor context** (site → page → section → nested group) supplies *applicable inheritable semantic tokens*, such as `foreground_text_color`, `accent_color`, `font_family`. Local context changes apply only within that subtree.
+4. **Node type preset** supplies role defaults for allowed properties (e.g. H2 size/weight and paragraph line height) and may *reference* ancestor context tokens for colour. It must not accidentally wipe out contextual text colour.
+5. **Selected named design variant / preserved original preset** supplies intentional role/section differences and may reference current context tokens. Preset settings affect only the documented properties.
+6. **Explicit local custom overrides** win for their respective allowed properties. Override values for a particular breakpoint or container state are considered **within the same source**; do not let a generic responsive preset overwrite an explicit responsive custom value unintentionally.
+7. **Validation** checks final computed design against safety, legibility and responsive requirements. Validation normally **rejects or asks for correction** rather than silently changing an approved colour/size.
+
+For each property, specify its **default policy**: `context` (e.g. text foreground), `role_preset` (e.g. H2 font size), `container_owned` (e.g. child gap/column layout), `surface_owned` (background/padding), or `intrinsic` (content-height). `inherit` is available only where documented, not for every property. `unset` means no saved override and thus run the default policy; `reset` **deletes** the override record. Responsive rules are variants of applicable values, not a blanket extra step with unconditional priority.
+
+**Example:** a section sets `foreground_text_color = white`; its H2 retains the H2-size token, but references the new contextual text colour unless the chosen heading variant explicitly defines another accessible colour. A local H2 custom colour wins if it passes contrast checks. Other sections remain unaffected.
+
+### 7G.3 Background composition and surface colour
+
+- A background has one **base surface colour** (often transparent for children) and an **ordered list of optional decorative layers** (image, gradient, animated image, pattern/SVG). A readability **scrim** is rendered after decorative layers but behind foreground content.
+- **Transparent** means alpha-zero base painting; **none** means the absence of a particular layer; neither means inheritance. `default` and `custom` describe configuration state, not a CSS colour.
+- Background painting and interactive/structural overlays (§7B) are different: background layers must not create extra content-tree nodes or intercept controls.
+- The site maintains a safe opaque fallback colour; if decorative media fail, the effective remaining background must maintain contrast. Contrast on photos requires conservative design or a reliably readable text backing—not a single sampled pixel.
+- Responsive media focal points and an optional alternative small-screen asset are supported in the **future design**, with the same validated fallback.
+- **Optional future capabilities:** named light/dark themes, safe vector/pattern sources, background blend modes and limited masks. Do **not** require these in the initial implementation; performance and security checks apply.
+
+### 7G.4 Spacing consistency and specific exceptions
+
+- Default section-to-section **outer gap remains 0**; selected existing sections retain their intentional **inner padding**, heading margins and border dividers through named preserved presets.
+- Parent owns ordinary child gap; child owns internal padding; avoid duplicate margins unless preserving a documented existing design or supporting a reviewed advanced layout.
+- The proposed `max(parent_gap, previous.space_after, next.space_before)` rule (§7E.4) is a **candidate**, not an agreed mandatory formula. During migration reproduce the actual visual spacing of the existing CSS; evaluate this rule for newly authored sections before adopting it.
+- A new section's generic compact spacing tokens must **not** retrospectively compress an existing, deliberately spacious section.
+
+### 7G.5 Fixed-template migration and node identity
+
+Current `content/areas.json`, `content/schema.json`, `data-area-code` and `data-entry-code` are **legacy layout-mapping scaffolding**, not final database constraints. Keep them until the dynamic renderer maps them to immutable UUID-backed sections/elements and content records. Support arbitrary new/removed entries rather than preserving fixed counts.
+
+`experience.html` currently applies `data-area-code="EXPERIENCE_DETAIL"` to both the page's main container and its inner experience-list section. These are not two unique database identities. During migration give each distinct structural node its own UUID; preserve the legacy area label only as migration metadata. Do not change current CSS selectors/markup before parity tests.
+
+Generate hierarchical display codes from current parent/order, independent from the stable UUIDs, and define an explicit policy for hidden/archived siblings before implementing numbering.
+
+### 7G.6 New rules versus migrated, designed exceptions
+
+- **New page/section:** uses the default-first system and component role presets, with zero inter-section gap, optional local overrides and responsive validation.
+- **Existing page/section:** initially uses a named **preserved-design preset** recording its already selected appearance, layout and intentional spacing. Migrating a section must not unintentionally apply generic section padding, font sizes or backgrounds.
+- **Admin control:** can choose the new generic default, a preserved preset, or a new saved variant; switches should preview their impact and be reversible through publication revisions.
+- **Global theme edit:** updates components referencing global tokens; a deliberate section-local override remains unchanged. A preserved preset may explicitly reference site tokens for selected attributes; it must document which.
+- **Design data:** editable defaults, preset selections and overrides will be stored in Supabase; CSS/components, accepted properties and secure fallback remain in GitHub. A new capability still requires rendering code.
+- **Testing:** compare reference desktop/mobile screenshots and computed font, colour, dimensions, layout and interactions before/after migration. Tests should include 200% text zoom, keyboard navigation, narrow nested components and failed media load. Publish only validated snapshots.
+
+### 7G.7 Open choices / implementation checks
+
+**Not yet final:** approved names and exact values for preserved presets; per-property inheritable token registry; numeric breakpoint and text-size scales; alternate light/dark theme; acceptable media types/storage; archived-item numbering; maximum nesting depth; handling reusable component instances; whether the proposed boundary-gap formula is accepted; exact CSS layer migration strategy.
+
+**External technical references:** MDN cascade layers https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Introduction ; MDN background layering https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-image ; WCAG 2.2 https://www.w3.org/TR/WCAG22/ .
 
 ## 8. Drafts, revisions, history, archive and recovery
 
@@ -994,9 +1086,11 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 | Child numbering | Restart for each parent; skip unused levels |
 | Semantic headings | H1–H6 independent of element code and style variant |
 | Design variants | Independent from identity and hierarchy; exact catalog pending |
-| Section-to-section gap | Default 0; override planned |
-| Design cascade | Site → Page → Section → Group → Element, with explicit override and safe fallback; detailed tokens pending |
+| Section-to-section gap | Default 0; preserve existing section padding; optional boundary override policy still proposed |
+| Design value resolution | Default-first; authoritative scoped property/context/role/variant/override model in §7G.2, with safety validation |
 | Archiving/history | Persistent UUID, recorded revisions, soft archive proposed |
+| Preserved existing designs | Maintain named presets for intentional layouts, spacing, typography and colour; visual parity required (§7G.1) |
+| Backgrounds | Site safe base + configurable surface colour, ordered optional decoration layers and readability scrim (§7G.3) |
 | Building-block visual system | To be designed step-by-step in a future stage |
 
 ## 13. Risks and matters to decide later
