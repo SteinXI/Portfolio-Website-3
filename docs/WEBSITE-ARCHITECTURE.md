@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.11 (administration live-preview requirement)  
+**Document version:** 1.12 (interactive components and typography rules)  
 **Date:** 17 October 2026  
 **Reviewed:** 18 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
@@ -347,6 +347,7 @@ An image/GIF background needs defined cover/contain, anchor/crop, contrast overl
 - Image `V1`, `V2`, etc. represents **visual treatment**, not semantic depth or structural numbering.
 - Structural item codes such as `P01.S01.G02.E-H01` do **not** encode H1 or V1.
 - Browser navigation, metadata and SEO depend on valid page routes, headings and link semantics, not on visual font size alone.
+- Additional interactive behaviours such as navigation and image carousels belong to typed reusable components with explicit controls and accessibility requirements (§7I), not to free-form styles or structural ID codes.
 
 ### 7A.6 Example override sequence (illustrative, not deployed)
 
@@ -1065,6 +1066,178 @@ The authoritative **source-based inventory of existing section-specific design c
 
 **Verification before launch:** Check visual parity for existing presets at multiple widths; compare draft/preview/published rendering from an identical approved configuration; test keyboard interactions, text enlargement, media fallback and network/draft failure without exposing private data.
 
+## 7I. Interactive and composite website components — extensible framework
+
+**Status:** The hierarchy already supports globals, shared components and media, and the current homepage has working floating-navigation and credentials-tab scripts. **Decision:** navigation, galleries, carousels and other interactive compositions shall be supported as reusable, validated building blocks in the planned framework. The exact components, controls and CMS implementation are **proposals**, not existing deployed features.
+
+### 7I.1 Distinguish structure, design and function
+
+A **structural node** owns a place in the site/page/section/group tree. A **component type** determines rendering and optional interactive behaviour. A **design variant** governs appearance. A **content record** supplies text/media. This separation allows a single navigation component to have horizontal, vertical, floating and mobile presentations, or one gallery dataset to be shown as static tiles or an image carousel.
+
+A composite component may be represented as a **styled group with typed children and validated behaviour**, or as a bounded specialised element with structured child records when that is more manageable. The final element code registry (`E-*`) remains unassigned; do not force a new component into a reserved one-letter code or equate it with the layout mode (`L1–L4`).
+
+### 7I.2 Candidate component catalogue
+
+| Component | Recommended authoring scope | Visual/functional variants | Initial priority |
+| --- | --- | --- | --- |
+| **Navigation / menu** | Site-level global placements; page/section local menus permitted when appropriate | Horizontal top bar, vertical, existing floating sidebar, collapsible mobile; active item and optional dropdown | **Core**, existing site behaviour must be preserved |
+| **Image carousel / slider** | Page, section or group; can use content/media references | Manual slideshow as default; optional autoplay with controls; captions/links; indicators; transitions | **Core capability proposed**, not yet implemented |
+| **Gallery / lightbox** | Section/group | Grid, masonry-like optional, focusable enlargement/close | Recommended |
+| **Tabs / accordion** | Section/group | Tabs, disclosure panels; current credentials tabs preserved as a named variant | Core/reuse existing pattern |
+| **Cards / actions** | Section/group/element depending on type | Image/text/action card, button and link variants | Core catalogue |
+| **Search / filtering** | Page/section | Filter/sort/search published records, optionally client-side | Optional; large or private datasets require a separately designed backend |
+| **Forms / external embeds** | Dedicated controlled component | Contact or data submission only with secure endpoint and abuse protection; allowlisted embeds | Deferred/advanced |
+
+A website visitor can interact with these components using published static HTML/CSS and safely included browser-side JavaScript, **without a live Supabase read for ordinary public visits**. The private editor modifies component configuration and item data and triggers a new static publication. Do not imply that GitHub Pages alone can process private form submissions or secure search requests.
+
+### 7I.3 Navigation contract
+
+- Navigation item routes/labels and parent-child relationships are **content/configuration**, not hard-coded to fixed HTML IDs. Validate route existence, avoid accidental broken fragment links, and support external links with an explicit destination policy.
+- A site-global navigation instance is a **shared placement**, not a section replicated with competing UUID identities on every page. Page-specific menus remain separate placements.
+- Define active/hover/focus state, mobile collapse, keyboard order, aria labels, sticky/floating behaviour and navigation visibility as **component behaviour**; CSS variants must not change logical DOM reading order.
+- **Preserve** the existing floating navigation after the homepage introduction, its active-section behaviour, footer suppression and mobile menu interactions as a **legacy preset**, documented in [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md). Moving to a top bar is an **optional new variant**, not an automatic replacement.
+- Navigation items and section links must respond properly when pages/sections are moved, renamed, hidden, archived or given a new slug. Slug redirects remain an independent routing decision.
+
+### 7I.4 Carousel / rotating-image contract
+
+**Proposed default:** manual navigation. Automatic rotation must be an **explicit opt-in**, disabled when reduced motion is requested; the preview and published site must render the same accessible settings.
+
+- Data: collection of stable slide IDs and ordered references to media assets, optional alt text, captions, link destination and focal-point/crop choice. No fixed number of slides.
+- Presentation: responsive aspect ratio, `cover` vs `contain` settings, previous/next buttons and optional labelled slide indicators. Fit media to its box without stretching or harmful cropping.
+- Behaviour: looping/non-looping and slide transition styles; if autoplay is enabled, include play/pause controls, pause on hover, **stop when focus enters and do not resume automatically after keyboard interaction without explicit user request**, respect `prefers-reduced-motion`, and avoid rapid flashing.
+- Accessibility: use supported carousel semantics, meaningful image alternatives, labelled controls and keyboard operation; properly hide non-current slides from keyboard/assistive technology and announce user-requested slide changes without unexpectedly stealing focus.
+- Performance: optimise images, preserve aspect ratio to minimise layout shifts, load nearby slides strategically, and use a still-image fallback for failed/disabled motion.
+- Publishing: allowlist slide data, media sources and link targets; validate missing assets, empty slide sets and external URLs.
+- The **background image composition** in §7F and §7G is a decorative paint surface, **not a content carousel**. A carousel containing meaningful images and captions belongs in the semantic content/composite system.
+
+### 7I.5 Editor and release considerations
+
+- The future dashboard will offer a component selector, data/list editor, appearance presets, responsive settings, and **interactive focused/context previews** (§7H).
+- Provide a straightforward default-first experience: insert `carousel` with approved manual controls and default style; advanced autoplay/loop/timing settings appear only when opted into.
+- Preserve published component versions as well as content records so a rollback restores both behaviour configuration and presentation.
+- Test click/keyboard/touch, reduced motion, narrow layouts, empty data, unpublished drafts, broken images and no-JavaScript fallback. For fully interactive functions, a no-JS fallback may display a static first slide or a linear gallery, not a dead blank area.
+
+**References:** W3C WAI Carousel Pattern https://www.w3.org/WAI/ARIA/apg/patterns/carousel/ ; W3C carousel tutorial https://www.w3.org/WAI/tutorials/carousels/ .
+
+## 7J. Typography and text-style contract — generic defaults and preserved editorial variants
+
+**Status:** Typography **roles and precedence** are framework recommendations elaborating §7C.2 and §7G.2. The numeric scale remains **proposed**, not an approved update to the existing website. **Selected preservation rule:** existing type treatments remain intact until visual comparison tests authorise replacement.
+
+### 7J.1 Separate meaning, design role and responsive rendering
+
+1. **Semantic meaning** is HTML structure (`h1`–`h6`, `p`, `blockquote`, `ul`, `ol`, `label`, `small`, etc.). Choose semantics for document meaning, *not* because of desired visual size.
+2. **Typography role** (e.g. `type_page_title`, `type_section_title`, `type_body`, `type_caption`) controls defaults. A heading element's semantic level and visual role can differ where the document outline warrants it.
+3. **Named design preset/variant** (e.g. `editorial_hero_title`, `editorial_section_heading`) provides an intentional visual exception without changing semantics or element UUID.
+4. **Contextual theme tokens** (e.g. `text_foreground`, `text_muted`, `text_accent`) allow locally readable colours. A section choosing white text does **not** make all H2 headings inherit paragraph sizes.
+5. **Explicit local overrides** affect only supported styling properties. They must pass the same responsive and contrast validation as default/preset values.
+
+### 7J.2 Recommended global font-family roles
+
+| Role | Suggested default | Why |
+| --- | --- | --- |
+| Body, paragraph, UI label, form, navigation | `Arial, Helvetica, system-ui, sans-serif` | Matches much of current site; familiar, legible and economical for text-dense content |
+| Ordinary new headings | Same sans-serif by default, or a separately selected heading token | Simple new elements without imposing an editorial font on every page |
+| Existing editorial titles | `"Bodoni Moda", Georgia, serif` (preserved preset) | Retains the currently intended typographic identity |
+| System-safe fallback | System/Georgia substitutes mapped by role | Protects against font-loading failure |
+
+The existing `index.html` loads Bodoni Moda from Google Fonts; evaluate third-party font requests, font loading and privacy as part of migration. Do not assume `font-weight:450` or `650` maps to a shipped static weight: verify supported font files/variable weight range and compare computed appearance. Font licensing/hosting remain deployment checks.
+
+### 7J.3 Suggested generic typography scale for NEW components
+
+These proposed default values supplement the earlier ranges in §7C.2. Based on an illustrative 16px root for conversion only, and not to be applied wholesale to preserved sections:
+
+| Typography role | Suggested normal size | Weight | Line-height | Why |
+| --- | --- | --- | --- | --- |
+| Page H1 | `2.5rem` (40px), responsive approximately 36–48px | 600–700 | 1.15 | Distinct page identity without an oversized generic title |
+| Section H2 | `2rem` (32px), responsive approximately 28–36px | 600 | 1.2 | Visible sectional hierarchy |
+| Subheading H3 | `1.5rem` (24px), responsive approximately 22–28px | 600 | 1.3 | Clear inside longer sections |
+| H4 | `1.25rem` (20px) | 600 | 1.35 | Entry/title hierarchy |
+| H5 | `1.125rem` (18px) | 600 | 1.4 | Supporting heading |
+| H6 | `1rem` (16px) | 600 | 1.45 | Semantic heading even when compact |
+| Lead / intro | `1.125rem` (18px) | 400–500 | 1.55 | Slight emphasis while keeping paragraph flow |
+| Body paragraph | `1rem` (16px) | 400 | 1.6 | Comfortable but compact sustained reading |
+| Supporting / metadata | `0.875rem` (14px) | 400 | 1.5 | Dense labels, dates and secondary details |
+| Caption | `0.875rem` (14px) | 400 | 1.45 | Legible supplementary text |
+| Small UI label / overline | `0.875rem` (14px) | 500–600 | 1.4 | Navigation and section labels; all interactive targets also need accessible hit areas |
+| Optional display/hero | **No generic forced size**; deliberate named preset | Varies | Varies | Prevents accidentally replacing the legacy oversized editorial hero |
+
+This is a **typographic role scale**, not a rule forcing H1 appearance on every semantic H1. Do not impose 14px as an absolute minimum in all contexts—evaluate font, language, zoom and purpose. Do not compress text merely because a card contains more words.
+
+### 7J.4 Preserved typography: existing section exceptions
+
+These are **source-backed candidates**, not browser-computed claims. See [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md) for full profiles.
+
+| Existing section / role | Observed source treatment | Required migration handling |
+| --- | --- | --- |
+| Intro H1 / `.Intro h1` | Bodoni Moda; final desktop `clamp(4.4rem,7.7vw,8rem)`, weight about 400; separate mobile rules | Keep `editorial_hero_title` named preset, natural content growth |
+| Homepage section H2 | Bodoni Moda; later editorial `letter-spacing:-.045em`, `line-height:1.1`, and section-specific responsive sizes | Preserve `editorial_section_heading` and verified local exceptions |
+| About biography | Final screen `font-size:clamp(.97rem,1.04vw,1rem)`, `line-height:1.65`; managed paragraph margins | Preserve compact editorial body preset, not all new-body defaults |
+| Focus entry H3 | Final screen `clamp(1.12rem,1.37vw,1.32rem)`, `line-height:1.34` | Preserve small card/feature heading role |
+| Label/overline | Current late screen rule sets approximately `.77rem` plus deliberate margins and tracked lettering | Preserve **existing visual preset**; the proposed new generic 14px label should not enlarge old labels |
+| Contact introduction | Later `clamp(1.18rem,1.7vw,1.6rem)`, `line-height:1.48` | Preserve distinct editorial lead, not generic paragraph treatment |
+| Detailed Experience H1 / H2 | Standalone page has separate large serif title and section-heading rules | Keep dedicated page/detail typography preset |
+| Dates, credentials, tags, language levels | Smaller supporting roles, with some late `!important` overrides | Record actual final styles at multiple screen sizes before extracting to global tokens |
+
+Be careful: the currently loaded `editorial-v2.css` overrides earlier `style.css`, sometimes within print and screen media queries. **Visual parity tests**, not one isolated CSS snippet, determine the accepted current appearance. Rebuilding these as generic values without comparison would count as a design change.
+
+### 7J.5 Detailed text-style property defaults
+
+| Property | Suggested NEW-component default | Scope / exception |
+| --- | --- | --- |
+| Text colour | Contextual foreground token, validated against effective surface | May change with section theme; component preset can override intentionally |
+| Font weight | 400 for body; 600 for headings; 500–600 for labels | Preserved editorial Bodoni headings often use lighter weights |
+| Text align | Start/left in left-to-right text | Centre/right valid local variants; logical start/end preferable in multilingual content |
+| Letter spacing | `normal` for ordinary paragraphs | Named tracked overlines; intentional negative tracking for editorial H1/H2 |
+| Word spacing | `normal` | Avoid forced squeeze or brittle alignments |
+| Font style | `normal` | Italic or emphasis only where meaningful |
+| Text decoration | Links visibly identifiable; underlines in content where appropriate | Decorative title underline/accent separate from anchor semantics |
+| Capitalisation / transform | Original content case, no automatic `uppercase` | An overline preset may opt into uppercase; avoid corrupting copied text |
+| Text wrap / overflow | Natural wrapping; no hard clipping of prose | Optional line clamp only for truly optional excerpts with full-content access |
+| Line length | Reading text generally target about 60–75 characters, responsive | Existing editorial measures and layout columns may differ; do not force all labels/headings to this |
+| Paragraph separation | Parent/rich-text-owned spacing; `12px` candidate in §7E | Prevent double application from CSS margins and gap |
+| Heading spacing | Parent-managed gap or role-specific preset, not an uncontrolled combination | Existing editorial heading margins preserved |
+| Bold/italic within rich text | Semantic inline marks or carefully controlled formatting | Restrict to safe permitted markup; never raw arbitrary HTML/CSS input |
+
+**Mixed languages:** Provide proper document/element language metadata; use legible fallbacks for Myanmar, Japanese, Chinese and other scripts where relevant. Avoid applying Latin display fonts, aggressive tracking or forced uppercasing to scripts where unsuitable. Test font fallback, line breaking and translations rather than reducing type to fit.
+
+### 7J.6 Responsive typography and accessibility contract
+
+- Use `rem`-sensible minimum/maximum values and carefully tested fluid interpolation (`clamp` where appropriate), not fixed pixel text sizes for every screen. Preserved responsive type rules remain until regression tests prove equivalents.
+- Support browser text enlargement to **200%**, WCAG 2.2 reflow where applicable, and user-increased line/paragraph/letter/word spacing without clipping. Those user test settings are **not mandatory authored defaults**.
+- Use strong enough contrast for text against the **effective** painted surface, including local image/background layers and translucent overlays. Validate hover/focus/disabled and link states appropriately.
+- Maintain meaningful heading hierarchy; visual display size must not determine `h1`–`h6` structure.
+- Respect fonts' actual supported weights, glyph coverage, fallback and `font-display` behaviour; avoid layout shifts from late font loading where possible.
+- Printer-specific type styles are a separate verified design profile; the existing print CSS intentionally differs from screen presentation.
+
+**References:** WCAG 2.2 https://www.w3.org/TR/WCAG22/ ; W3C Understanding Text Spacing https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html .
+
+### 7J.7 Typography configuration and preview data (proposed)
+
+Editable **global typography role values, selected named presets, scoped overrides and optional responsive values** reside in Supabase as versioned validated configuration. Code in GitHub owns the approved type-role schema, responsive interpolation, font-loading definitions and a recovery fallback. Public generated pages embed the approved CSS and do not query Supabase to display text.
+
+**Conceptual configuration (not live database schema):**
+
+```json
+{
+  "typography": {
+    "role": "section_title",
+    "state": "default",
+    "variant": "editorial_section_heading",
+    "local_overrides": {
+      "color": null,
+      "letter_spacing": null,
+      "font_size": null
+    }
+  }
+}
+```
+
+Here `null` means **no local override**; it is not the literal CSS value `inherit`. The role and variant are independently stored. Allowed per-property responsive overrides must follow the resolution algorithm in §7G.2. The admin live preview (§7H) should display typography in both focused and full-page context and show the difference between the published editorial preset and a proposed generic replacement.
+
+### 7J.8 Outstanding typography decisions
+
+Before implementing: approve ordinary body/heading global token sizes; decide supported Latin and non-Latin font-family presets, contrast pairing and link style; confirm actual computed current text sizes and 200%-zoom behaviour; decide safe rich-text options; document font licensing/hosting; map each legacy section's final typography settings to named versioned presets. **Do not modify existing styling merely because the global proposal suggests different values.**
+
 ## 8. Drafts, revisions, history, archive and recovery
 
 Each item receives one permanent UUID and can have multiple revisions. Recommended conceptual storage:
@@ -1144,6 +1317,8 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 | Preserved existing designs | Source-based inventory in [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md); keep intentional layouts, spacing, typography and colour; visual parity still required (§7G.1, §7G.8) |
 | Backgrounds | Site safe base + configurable surface colour, ordered optional decoration layers and readability scrim (§7G.3) |
 | Admin live preview | Agreed core requirement: compact split-screen, focused/context preview, desktop/mobile and private drafts (§7H); implementation not built |
+| Interactive components | Navigation and existing tabs supported conceptually; future navigation/gallery/carousel composites specified in §7I, implementation pending |
+| Typography and text styling | Generic role defaults proposed; existing editorial styles preserved as named variants (§7J) |
 | Building-block visual system | To be designed step-by-step in a future stage |
 
 ## 13. Risks and matters to decide later
