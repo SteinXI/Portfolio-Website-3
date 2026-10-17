@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.9 (design consistency and preservation contract)  
+**Document version:** 1.10 (catalogue linked and preservation gate)  
 **Date:** 17 October 2026  
 **Reviewed:** 18 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
@@ -1013,6 +1013,14 @@ Generate hierarchical display codes from current parent/order, independent from 
 
 **External technical references:** MDN cascade layers https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascade/Introduction ; MDN background layering https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-image ; WCAG 2.2 https://www.w3.org/TR/WCAG22/ .
 
+### 7G.8 Existing website design catalogue and migration gate
+
+The authoritative **source-based inventory of existing section-specific design choices** is [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md), reviewed 18 October 2026. It records nine homepage sections, the detailed experience page's four internal sections, and shared navigation, footer, print and keyboard behaviours.
+
+**Migration gate:** Before replacing existing styles or rendering components, compare their browser-computed styles, screenshots and interactive behaviours with the referenced preserved presets. A legacy preset is not a reason to require that styling on every new section. Both generic defaults and preserved exceptions remain valid.
+
+**Status:** Catalogue completed from HTML/CSS/JS source. Visual/screenshots/behavioural parity testing and the final UUID/content mapping are still outstanding. They are implementation validation tasks, **not unresolved logical contradictions in the documented design rules**.
+
 ## 8. Drafts, revisions, history, archive and recovery
 
 Each item receives one permanent UUID and can have multiple revisions. Recommended conceptual storage:
@@ -1089,7 +1097,7 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 | Section-to-section gap | Default 0; preserve existing section padding; optional boundary override policy still proposed |
 | Design value resolution | Default-first; authoritative scoped property/context/role/variant/override model in §7G.2, with safety validation |
 | Archiving/history | Persistent UUID, recorded revisions, soft archive proposed |
-| Preserved existing designs | Maintain named presets for intentional layouts, spacing, typography and colour; visual parity required (§7G.1) |
+| Preserved existing designs | Source-based inventory in [Existing Design Catalogue](EXISTING-DESIGN-CATALOG.md); keep intentional layouts, spacing, typography and colour; visual parity still required (§7G.1, §7G.8) |
 | Backgrounds | Site safe base + configurable surface colour, ordered optional decoration layers and readability scrim (§7G.3) |
 | Building-block visual system | To be designed step-by-step in a future stage |
 
