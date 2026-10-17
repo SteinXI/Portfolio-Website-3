@@ -1,7 +1,7 @@
-# CR Portfolio Website — Infrastructure & Structural Design Specification
+# Portfolio Website — Infrastructure & Structural Design Specification
 
-**Document ID:** CR-WEB-ARCH-001  
-**Document version:** 1.0 (design baseline)  
+**Document ID:** WEB-ARCH-001  
+**Document version:** 1.1 (design framework expanded)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -11,7 +11,7 @@
 
 ## 1. Purpose and objectives
 
-CR is a personal academic and professional portfolio website. The long-term design must separate **content**, **presentation**, and **publishing** so that content can be edited independently of HTML and CSS.
+The Portfolio Website is a personal academic and professional portfolio website. The long-term design must separate **content**, **presentation**, and **publishing** so that content can be edited independently of HTML and CSS.
 
 Primary goals:
 
@@ -279,6 +279,95 @@ These are requirements discussed, **not configured or implemented**.
 
 **Layout versus hierarchy:** Two sibling groups may be side-by-side or vertically stacked. Their position in the document tree indicates ownership/order; the visual layout configuration controls placement.
 
+## 7A. Design-layer hierarchy and inheritance contract
+
+**Scope:** Design-layer framework only. This section defines where presentation rules live and how they are resolved; individual element looks and variant catalogues remain **to be decided**.
+
+### 7A.1 Structural ownership and visual design are independent
+
+A node's **structure** answers "what is its parent and in what reading order?". Its **design configuration** answers "how does it display?". A group can contain two sibling groups without implying they appear in two columns; the group's layout setting decides whether they stack, split, or align.
+
+**Proposed design cascade:**
+
+```text
+SITE default tokens and theme
+  └── PAGE (including subpage; can inherit or override)
+        └── SECTION (can inherit or override)
+              └── GROUP (optional; repeatable nesting)
+                    └── ELEMENT (category + semantic role + visual variant)
+```
+
+Global UI (navigation, footer) may use site tokens and its own component defaults. Reusable instances should retain a stable definition with separately specified allowed overrides.
+
+### 7A.2 Resolution and override rules
+
+For each independently configurable style property:
+
+1. Start with a **system/default design token** (safe fallback).
+2. Apply the **site theme** token, where provided.
+3. Apply a **parent's inheritable value** where the property is defined as inheritable.
+4. Apply an **explicit local override** on the page, section, group or element.
+5. Apply valid **responsive rules** for the current viewport.
+6. Enforce accessibility and technical constraints (for example minimum legible text size, no unsafe overflow).
+
+**Explicit local override wins over inherited values**, unless a defined safety rule prohibits it. Not every property inherits automatically: text colour and typography may inherit, while margins, positioning, padding, fixed height, image crop and display modes require explicit behaviour. The exact per-property inheritance registry is a later design task.
+
+Distinguish these states:
+- `inherit` / **not set**: use the effective parent/default setting.
+- `override`: use an intentionally chosen value.
+- `none` / `transparent` / `0`: meaningful explicit values, *not* the same as "inherit".
+- `reset`: revert to site/system default, if the editor offers that operation.
+
+Design properties should live in validated configuration data and design tokens, not be concatenated into unrestricted user-entered CSS.
+
+### 7A.3 Scope of configurable properties (requirements, not final defaults)
+
+| Property family | Site | Page/subpage | Section | Group | Element |
+| --- | --- | --- | --- | --- | --- |
+| Typography and colour tokens | Theme defaults | Inherit/override | Inherit/override | Inherit/override | Inherit/override |
+| Background colour, transparent, image/GIF, gradient | Default | Inherit/override | Inherit/override | Inherit/override | Where supported |
+| Spacing outside/inside containers | Defaults | Override | Override | Override | Override where meaningful |
+| Layout direction, width/column behaviour | Base rules | Page shell | Section children | Group children | Element sizing |
+| Content-related design variant | Category definitions | N/A | Optional preset | Optional preset | Individual `variant` |
+
+An image/GIF background needs defined cover/contain, anchor/crop, contrast overlay, loading and reduced-motion or static fallback. Page-level backgrounds may extend over the whole page; section backgrounds sit in their own section bounds. Transparency reveals whichever background is *actually painted behind the element*; it does not automatically copy the parent's fill.
+
+**Default gap between adjacent sections: `0`.** This is separate from internal section padding, gaps between children, and the parent page's content gutter. Background and spacing overrides must not accidentally produce unreadable text.
+
+### 7A.4 Content-aware and responsive behaviour
+
+- Prefer natural line-wrapping and height growth for paragraphs, headings, cards and sections; **do not globally auto-shrink font sizes to fit arbitrary word counts**.
+- Use responsive font ranges, maximum readable line lengths and fluid containers.
+- A multi-column layout can stack on narrow screens. The ordered content tree supplies a sensible reading/keyboard order.
+- Long words, translated content, missing images and empty optional content must not break the layout.
+- Avoid hard fixed-heights where content can change; if clipping/truncation is deliberate, it must be an explicit component setting with accessible access to the full content.
+- User-controlled positioning (left/centre/right/width) should map to validated layout modes rather than unconstrained absolute positioning.
+- Use logical spacing and size values where possible to support localisation.
+
+### 7A.5 Semantics are not visual variants
+
+- Heading **H1–H6** represents semantic outline. A heading's font appearance is independently selected via a style token or `variant`.
+- Image `V1`, `V2`, etc. represents **visual treatment**, not semantic depth or structural numbering.
+- Structural item codes such as `P01.S01.G02.E-H01` do **not** encode H1 or V1.
+- Browser navigation, metadata and SEO depend on valid page routes, headings and link semantics, not on visual font size alone.
+
+### 7A.6 Example override sequence (illustrative, not deployed)
+
+```text
+Site: background = white; text colour = dark; section gap = 0
+Page: background = subtle image; other values = inherit
+Section A: background = transparent; padding = default
+  Group 1: background = solid pale colour
+    Element: heading H2; visual variant V1
+Section B: background = white; section gap override = 16px
+```
+
+Here Section A shows the page image through transparent areas, while Group 1 paints its own surface. The second section's gap is a controlled override, not the site default.
+
+### 7A.7 Open design choices deliberately deferred
+
+Exact spacing scales, type sizes, breakpoints, columns, accessible palettes, background media storage, CSS token names, allowed per-node overrides, element variant catalogues and page-template arrangements are **not yet approved**. The next stage is to specify these one family at a time without replacing the fundamental tree.
+
 ## 8. Drafts, revisions, history, archive and recovery
 
 Each item receives one permanent UUID and can have multiple revisions. Recommended conceptual storage:
@@ -353,10 +442,14 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 | Semantic headings | H1–H6 independent of element code and style variant |
 | Design variants | Independent from identity and hierarchy; exact catalog pending |
 | Section-to-section gap | Default 0; override planned |
+| Design cascade | Site → Page → Section → Group → Element, with explicit override and safe fallback; detailed tokens pending |
 | Archiving/history | Persistent UUID, recorded revisions, soft archive proposed |
 | Building-block visual system | To be designed step-by-step in a future stage |
 
 ## 13. Risks and matters to decide later
+
+**Architecture review (17 October 2026):** The following are design gaps or implementation constraints, not evidence of broken deployed functionality.
+
 
 1. Exact one-letter element registry, including whether cards are elements or styled groups.
 2. Acceptable nesting depth and UI controls to keep editing manageable.
@@ -370,6 +463,14 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 10. Revision retention, restore UX, backup frequency and export portability.
 11. Publication snapshot consistency and rollback mechanism.
 12. How admin-level design overrides are constrained to protect consistency and responsive behaviour.
+13. **Schema mismatch:** Existing `content/areas.json`, `content/schema.json` and `data-entry-code` annotations describe fixed slots; they must not be treated as the final flexible node/element model.
+14. **Numbering implementation:** Define whether sibling numbering is computed on all nodes or only visible nodes, and how draft/archived nodes affect codes; document and test this before building the editor.
+15. **Page and subpage numbering:** Confirm how child pages participate in the visible code sequence and handle changed parent pages without breaking URLs.
+16. **Design rule precedence:** Finalise which properties inherit, reset, or default at each level, and specify narrow/mobile screen overrides.
+17. **Content safety:** Validate embeds, external assets and rich text; define image rights, alt-text rules, metadata, and accessibility checks.
+18. **Operational ownership:** Define who can publish, publish approvals, secret rotation, monitoring, domain/URL strategy and backup restoration tests.
+19. **Performance:** Set targets for build time, large content volumes, media optimisation and page size so unlimited logical entries do not imply unlimited rendering performance.
+20. **Reusable instances:** Define whether an instance can override source content, and whether changing a shared source updates all appearances automatically.
 
 ## 14. Planned implementation stages
 
@@ -392,7 +493,7 @@ Do not confuse earlier interim JSON `areas.json` and fixed numbered `data-entry-
 
 **Optional portable copy:** Export a DOCX/PDF for reading or offline reference, but treat the GitHub Markdown as the authoritative maintained version. Do not maintain divergent versions manually.
 
-**Maintenance rule:** Update this document only when an architectural decision or design contract changes; label open proposals, update the document version deliberately, and review alignment between document and code. Git already records when the document itself was modified.
+**Maintenance rule:** Update this document only when an architectural decision or design contract changes; label open proposals, update the document version deliberately, and review alignment between document and code. This specification is *not* a website update log. `CR` was the ChatGPT project label; **Portfolio Website** is the neutral official document title. Git already records when the document itself was modified.
 
 ---
 *End of infrastructure and format specification. Website update activity history intentionally excluded.*
