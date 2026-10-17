@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.2 (design inheritance rules clarified)  
+**Document version:** 1.3 (layout and visual layering framework)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -398,6 +398,123 @@ This clarifies the earlier high-level cascade. It is a **framework proposal**, n
 **Separate structure from visual stacking:** Hierarchical depth and codes (e.g. `P01.S01.G02.E-T01`) identify ownership, not CSS layering or left/right position. If overlapping surfaces are supported later, their z-order is a separate explicit layout rule; the DOM and keyboard reading order must remain logical.
 
 **Decisions postponed to building-block design:** precise token values; which individual variants permit which overrides; breakpoint values; allowed minimum/maximum dimensions; controls for decorative media and accessibility fallbacks.
+
+## 7B. Layout and visual layer rules — framework specification
+
+**Status:** Proposed framework defaults for review. This is a rule set, not implementation. Layout types and element design variants are distinct. No final CSS values or individual building-block designs have been approved.
+
+### 7B.1 Separate three independent axes
+
+1. **Document structure** (`site → page → section → group → element`): parentage, content ownership, stable UUIDs, and structural path codes.
+2. **Layout mode** (`L1`–`L4` initially): how one container arranges its **immediate children**.
+3. **Visual stacking** (background/content/overlay/interface): which painted objects cover others when overlapping is intentionally enabled.
+
+**Never infer left/right position, column count, or z-index from** `P01.S01.G02.E-T01`. This code specifies hierarchy and element kind, not visual placement. H1/H2 heading semantics and V1/V2 visual variants are independent of L1/L2 layout modes.
+
+### 7B.2 Proposed layout mode registry
+
+| Label | Internal mode | Purpose | Defaults and cautions |
+| --- | --- | --- | --- |
+| `L1` | `stack` | Vertical stacking (top to bottom) | Default page/section mode; natural item height; logical reading order |
+| `L2` | `row` | Horizontal items in one row or wrapping row | Permit responsive wrapping/stacking; no forced horizontal overflow |
+| `L3` | `grid` | Repeating items in rows and columns | Configurable minimum item width; automatic column reduction on small screens |
+| `L4` | `overlay` | Intentional background/foreground composition | Opt-in; must enforce legibility, accessible reading/interaction order, and safe fallback |
+
+**Registry extensibility:** Future `L5`, `L6` modes may be added without changing the tree or UUIDs. A flexible two-column split could be implemented as L2 or L3 configuration rather than a separate hard-coded section template. The mode is a property of a **container**; an element's separate `V1` variant controls that element's appearance.
+
+### 7B.3 Container scope and nested layouts
+
+- **Site:** supplies global width constraints, responsive standards, and design tokens; not a single layout mode for every descendant.
+- **Page:** owns page shell and the default arrangement of its sections. Page sections default to vertical layout with **zero outer section-to-section gap**.
+- **Section:** chooses how its direct group and element children appear. Default is `stack`; can override to row/grid/overlay.
+- **Group:** independently chooses a layout mode for its own children; nested groups may choose another mode.
+- **Element:** normally participates in its parent container's layout. It may specify width/span, self-alignment or sizing constraints where allowed, not take control of siblings' ordering.
+- **Global UI:** navigation and footer have dedicated semantic and stacking rules, separate from normal page content.
+- A page/subpage uses the same structural rules; a subpage may inherit theme settings but not blindly copy every ancestor page's layout.
+
+**Mixed child example:**
+
+```text
+P01.S01 (L1: stack)
+  E-H01            heading
+  G02 (L3: grid)   grid container
+    E-I01          image, first grid cell
+    G02 (L1: stack)
+      E-H01        heading in second grid cell
+      E-T02        paragraph below heading
+  E-T03            text below the grid, direct child of section
+```
+
+The full structural path identifies the correct parent and sibling level. The layout mode decides visual position; grouping and order remain stable when styles change.
+
+### 7B.4 Position, order and alignment
+
+- **Reading order** is the structural sibling order, shared across groups and elements; use it to generate accessible HTML and default keyboard/tab sequence.
+- **Visual order** should normally match reading order; avoid desktop/mobile CSS reordering that makes reading or keyboard order confusing.
+- Child settings may include `align_self`, `justify_self`, `span`, `width`, `min_width`, `max_width`, and validated position presets; availability depends on parent layout mode.
+- Container settings may include direction, wrapping, column count or minimum column width, alignment, justification, and gaps.
+- Parent sets the layout; children control their own sizing and placement only within allowed constraints. This prevents two conflicting sources of truth.
+- Use normal document flow by default. Avoid unrestricted `position:absolute` for content-heavy or editable sections.
+- Do not confuse **same structural depth** with **side-by-side placement**: siblings can be stacked or adjacent, based on the parent layout.
+
+### 7B.5 Size and content-adaptive layout
+
+- Default width: constrained by parent and responsive page gutters; default height: `auto`.
+- Content length should cause natural wrapping/height growth, not arbitrary font shrinking.
+- Use `min-width: 0`-equivalent constraints for shrinking flex/grid children and handle long unbroken words safely.
+- Grid count may shrink at narrower widths; rows may wrap or stack with logical source order preserved.
+- Empty or hidden elements should not leave accidental blank cards/gaps. The editor's visibility controls should be distinct from preserving draft data.
+- Fixed dimensions, clipping, absolute overlays and scroll regions are explicit advanced choices with mobile/accessibility validation.
+- Plan for long multilingual text, zoomed text, slow-loading images, missing content, image aspect ratios, and browser font changes.
+
+### 7B.6 Spacing and section adjacency
+
+- **Between page sections:** default gap is `0`, per user's selected convention.
+- **Inside a section/group:** padding and child gaps are independently configured; a zero section gap does **not** imply zero internal breathing room.
+- Prefer one responsible owner for each gap (the parent layout) to avoid double margins.
+- Permitting a per-section spacing override requires a clear rule: a section's `space_before` or `space_after` contributes to the relevant boundary; avoid independent adjacent margins adding unpredictably. Exact conflict resolution must be specified in the spacing stage.
+- Page margins/gutters, container padding, element margins and adjacent-section gaps are different settings.
+
+### 7B.7 Visual layering and z-order
+
+The layers below are **conceptual purposes**, not literal universal CSS z-index numbers. Browser stacking contexts may prevent a child's z-index from escaping its parent's context.
+
+| Priority concept | Purpose | Rule |
+| --- | --- | --- |
+| Background | Site/page/section/group colour, image, GIF or gradient | Painted behind relevant content; transparency reveals underlying surfaces |
+| Content | Ordinary text, images, cards and links | Default foreground; no overlapping unless enabled |
+| Overlay | Approved decorative or compositional overlap | Opt-in, constrained; noninteractive decoration must not intercept clicks |
+| Interface | Menus, dialogs and other utility controls | Above ordinary content when open, with keyboard and focus management |
+
+A visual overlay never changes its UUID, structural ancestry or reading order. Decorative overlays should not obscure controls or essential text. Where media animations are used, support reduced motion and a static fallback. Modal/dialog stacking and focus-trapping are separate UI rules to define later.
+
+**Terminology caution:** A CSS `z-index` property is not a substitute for a sound stacking-context model. Design-layer inheritance (section 7A) and visual paint order are different concepts.
+
+### 7B.8 Proposed configuration example (not yet executable)
+
+```json
+{
+  "kind": "section",
+  "layout": {
+    "mode": "stack",
+    "gap": 0,
+    "align": "stretch"
+  },
+  "children": [
+    {"kind": "element", "element_type": "H", "variant": "V1"},
+    {"kind": "group", "layout": {"mode": "grid", "min_column_width": "18rem"}},
+    {"kind": "element", "element_type": "T", "variant": "V1"}
+  ]
+}
+```
+
+This demonstrates configuration scope only. The final storage schema must use UUID relationships rather than treating embedded arrays as permanent database identity.
+
+### 7B.9 Validation and deferred decisions
+
+**Validation requirements:** every node kind must be permitted under its parent; no parent loops; no invalid stacking over interface controls; responsive layouts must fit supported viewports; semantic heading order and keyboard interaction must remain logical; media needs fallbacks; editor must reject incompatible layout-property combinations.
+
+**Deferred:** exact breakpoint sizes, supported width fractions, precise row/grid column constraints, element-specific layout compatibility, numeric z-index policy, advanced overlay placements, spacing conflict resolution and final editor controls. These belong in the sizing/spacing/background/element stages, not in the structural framework.
 
 ## 8. Drafts, revisions, history, archive and recovery
 
