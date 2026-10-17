@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.4 (default-first design rule)  
+**Document version:** 1.5 (design validation and typography proposal)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -555,6 +555,75 @@ This demonstrates configuration scope only. The final storage schema must use UU
 **Validation requirements:** every node kind must be permitted under its parent; no parent loops; no invalid stacking over interface controls; responsive layouts must fit supported viewports; semantic heading order and keyboard interaction must remain logical; media needs fallbacks; editor must reject incompatible layout-property combinations.
 
 **Deferred:** exact breakpoint sizes, supported width fractions, precise row/grid column constraints, element-specific layout compatibility, numeric z-index policy, advanced overlay placements, spacing conflict resolution and final editor controls. These belong in the sizing/spacing/background/element stages, not in the structural framework.
+
+## 7C. Design-setting validation and typography proposal
+
+**Decision status:** Validation is an agreed system requirement. The numeric typography values below are **recommended starting values only**, not an approved font scale and not implemented website styling.
+
+### 7C.1 Validation requirement
+
+Every editable design value retrieved from Supabase must pass server/build-time validation **before publication**. Invalid settings must not silently produce a broken static website.
+
+- Store typed configuration values using an allowlist (for example, validated colours, recognised units and presets), not unrestricted CSS declarations or arbitrary executable content.
+- Reject non-finite/negative values where nonsensical, zero-size essential text, malformed colours, unsafe asset URLs, unsupported font families and incompatible layout settings.
+- Check foreground/background contrast using the **effective rendered combination**, including image overlays; enforce WCAG 2.2 AA as the initial target: 4.5:1 for normal text and 3:1 for large text, subject to applicable exceptions.
+- Test 200% text resizing/zoom without loss of content or functionality and responsive reflow. Do not rely on a naive numerical minimum size alone for accessibility.
+- Ensure long text wraps, readable content is not unintentionally clipped, and headings retain sensible semantic order.
+- Require a supported static fallback for unavailable media; respect reduced-motion user settings for animated backgrounds.
+- Validate every draft before publishing; warn the editor about minor issues and **block** publication for serious invalid or unsafe settings.
+- Keep a known-good fallback design configuration **in code** (public, non-sensitive) for development/recovery, even when all editable design default values are managed in Supabase.
+- Take a versioned snapshot of approved design defaults/overrides with each content publication to support accurate preview, restoration and rollback.
+- Enforce permissions: only administrators with appropriate roles can change global design settings. Never expose elevated database keys in browser code.
+
+References: WCAG 2.2 https://www.w3.org/TR/WCAG22/ ; MDN CSS clamp https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/clamp .
+
+### 7C.2 Typography system: semantics, appearance and storage
+
+Do not confuse (a) semantic heading level `H1–H6`, (b) font-size token `text_*`, (c) optional design variant `V1`, and (d) structural code `E-H01`. These are independent.
+
+**Recommended scale** — approximate desktop target ranges and suggested defaults, measured relative to a 16px base where 1rem = 16px *unless the user's browser changes the root size*:
+
+| Role/token | Suggested font size | Weight | Line height | Purpose |
+| --- | --- | --- | --- | --- |
+| Display/hero (`text_display`) | fluid ~48–72px (3–4.5rem) | 500–700 | 1.05–1.15 | Optional hero treatment; semantic level separate |
+| H1 (`text_h1`) | fluid ~36–48px (2.25–3rem) | 600–700 | 1.1–1.2 | Main page title |
+| H2 (`text_h2`) | fluid ~28–36px (1.75–2.25rem) | 600–700 | 1.2–1.3 | Major section heading |
+| H3 (`text_h3`) | fluid ~22–28px (1.375–1.75rem) | 600 | 1.25–1.35 | Subsection heading |
+| H4 (`text_h4`) | ~20–22px (1.25–1.375rem) | 600 | 1.3–1.4 | Entry heading |
+| H5 (`text_h5`) | ~18–20px (1.125–1.25rem) | 600 | 1.35–1.45 | Minor heading |
+| H6 (`text_h6`) | ~16–18px (1–1.125rem) | 600 | 1.4–1.5 | Smallest semantic heading |
+| Standard body (`text_body`) | **16px** (1rem) | 400 | **1.55–1.7** | Main paragraphs |
+| Lead (`text_lead`) | 18–20px (1.125–1.25rem) | 400–500 | 1.45–1.65 | Short introductory copy |
+| Supporting (`text_support`) | 14–16px (.875–1rem) | 400 | 1.45–1.6 | Secondary labels/details |
+| Caption (`text_caption`) | 14px (.875rem) | 400 | 1.4–1.5 | Image captions and metadata |
+
+The suggested 16px body default balances compactness and readability for content-heavy academic/professional pages. Do not downsize long passages purely to fit a fixed panel. Use a maximum reading measure near **60–75 characters** for comfortable paragraph lines as a starting design target, not a fixed accessibility threshold.
+
+**Font families:** keep a readable sans-serif body stack as the default (e.g. Arial/Helvetica/system sans); permit an optional editorial display/heading family in a named token. The original site uses Arial/Helvetica and some Bodoni Moda, so preserve its existing look until visual parity is checked. Choice of a new font family has **not** been approved.
+
+**Font weights:** use a compact set of named values (e.g. 400 regular, 500 medium, 600 semibold, 700 bold) where supported by the chosen font. Do not depend on synthetic weights without review.
+
+**Alignment:** body paragraphs default left-aligned; headings default to their component style; controlled centre/right overrides permitted. Avoid full justification by default because irregular word spacing can impair readability.
+
+**Spacing:** typography has two distinct concerns — internal line-height and external spacing between text blocks. The parent container owns **gaps**; individual blocks own **line height**, not a redundant second external gap. Default between adjacent sections remains **0**.
+
+**Fluid sizes:** responsive values should use `rem`-based limits and tested `clamp()` expressions rather than pure `vw` or rigid `px` at every viewport. Test at 200% zoom; careless `clamp` limits can prevent expected scaling. Exact CSS expressions and breakpoints will be selected during implementation.
+
+### 7C.3 Global design data and code boundary
+
+**Agreed direction:** put *editable* global design default values and their revision snapshots in Supabase, alongside scoped page/section/group/element overrides. This lets the editor manage the website theme without manually changing source code.
+
+Keep **rendering code, accepted property names/types, layout engines, accessible fallback values, and compatibility tests** in GitHub. Even if the editor stores defaults and variant selections in Supabase, a genuinely new visual capability still requires implementation in the codebase.
+
+When publishing: retrieve an authorised, coherent design/content snapshot → validate → compile to static CSS/HTML → deploy to GitHub Pages. The public site must not require live Supabase access to paint its design.
+
+### 7C.4 Open questions for next review
+
+1. Confirm typography values and font family against screenshots/reference version of Portfolio-Website-2, including desktop and mobile.
+2. Decide whether optional global-theme changes require preview and manual approval.
+3. Establish exact accepted CSS units, override range limits and responsive breakpoints.
+4. Define background/image overlay checks, contrast sampling strategy and media hosting policy.
+5. Determine validator severity levels, editor error messages, and how to recover from invalid designs.
 
 ## 8. Drafts, revisions, history, archive and recovery
 
