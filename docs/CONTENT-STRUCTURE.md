@@ -51,3 +51,13 @@ Counts describe the copied **template**, not fixed database capacity; the databa
 - Do not commit private personal data or database secrets to this public repository.
 - Leave existing CSS and JavaScript unchanged until rendering parity can be checked.
 - Placeholders are visual stand-ins; they are not actual records or published content.
+
+## Migration interpretation and preservation rules (architecture alignment)
+
+This document describes **legacy presentation slots** in the copied HTML template, **not a permanent, fixed-card authoring model**. The authoritative future design rules are documented in [WEBSITE-ARCHITECTURE.md](WEBSITE-ARCHITECTURE.md), especially §7G.
+
+- Preserve existing intentionally chosen visual designs, layout behaviours and interaction patterns through **named migrated presets**; do not automatically force new generic typography, section padding, colours or grid defaults onto current sections.
+- A legacy `data-area-code` label can occur on more than one HTML container (e.g. `EXPERIENCE_DETAIL` on both the main container and its nested list). It is not a unique database key; assign distinct UUIDs to real structural nodes during migration.
+- Legacy `data-entry-code` values such as `FOCUS_01` identify existing **layout slots**, not permanent item IDs or final hierarchical codes. Do not impose their fixed counts on dynamic content.
+- Maintain a verified mapping of each existing layout slot/section to the future UUID-backed model, and compare desktop/mobile visual parity and interactions before editing or removing legacy selectors.
+- The existing `content/schema.json` is provisional and **will be superseded** by the flexible site/page/section/group/element schema; neither JSON file currently drives rendering.
