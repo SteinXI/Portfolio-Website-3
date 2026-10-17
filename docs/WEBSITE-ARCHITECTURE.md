@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.1 (design framework expanded)  
+**Document version:** 1.2 (design inheritance rules clarified)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -367,6 +367,37 @@ Here Section A shows the page image through transparent areas, while Group 1 pai
 ### 7A.7 Open design choices deliberately deferred
 
 Exact spacing scales, type sizes, breakpoints, columns, accessible palettes, background media storage, CSS token names, allowed per-node overrides, element variant catalogues and page-template arrangements are **not yet approved**. The next stage is to specify these one family at a time without replacing the fundamental tree.
+
+### 7A.8 Design property inheritance matrix — proposed framework standard
+
+This clarifies the earlier high-level cascade. It is a **framework proposal**, not executable CSS or implemented editor behaviour.
+
+| Property | Resolution policy | Why |
+| --- | --- | --- |
+| Font family | Inherit by default; local override allowed | Visual consistency |
+| Text colour | Inherit by default; contrast validation required | Readability |
+| Base text size | Site token as baseline; semantic/component presets for individual roles; controlled override | Prevent accidental font-size compounding |
+| Heading level | Independent semantic field, **not** inherited | Correct document hierarchy |
+| Text weight/line height | Component/type defaults; optionally inherit appropriate values | Legible text |
+| Background | Each surface has its own default; can be explicitly transparent or custom; visual underlying surface shows through transparency | CSS backgrounds are not normally inherited |
+| Gap between sections | **0 by default**; owning page/section-stack controls gap; per-section override where defined | Deterministic adjacent spacing |
+| Padding inside section/group | Local component default; custom override possible, not inherited as the same number | Avoid multiplied spacing |
+| Margins | Controlled by owning layout; not automatically inherited | Avoid collapsed/doubled gaps |
+| Width, columns, placement, alignment | Controlled by immediate parent layout plus local size constraints | Layout is contextual, not a universal inherited value |
+| Height | Content-based by default; min/max only where appropriate | Avoid clipping variable text |
+| Images / background media | Local media settings and fallback; no implicit inheritance of crop | Preserve predictable framing |
+| Responsive rules | Site-defined breakpoint policy; scoped overrides with validation | Consistent cross-device behaviour |
+| Animations | Respect reduced-motion preference and accessibility fallback | Safety and usability |
+
+**Resolution order for configurable properties:** system fallback → theme token → any applicable inherited value → component preset → local override → responsive rule → accessibility/validation constraints. The exact priority between preset and inherited values must be encoded explicitly per property during implementation; no accidental reliance on CSS source order.
+
+**Setting states:** `default` uses the component/site specified fallback; `inherit` follows an inheritable parent value; `custom` supplies a validated value; `reset` removes the local setting and restores its documented default mode. Explicit `0`, `none`, and `transparent` are legitimate values, never interpreted as unset.
+
+**Important example:** A page with an image background can contain a section with a transparent background so the page image remains visible, while a nested group may paint an opaque colour. Its children do not silently inherit the group’s padding or background-image coordinates.
+
+**Separate structure from visual stacking:** Hierarchical depth and codes (e.g. `P01.S01.G02.E-T01`) identify ownership, not CSS layering or left/right position. If overlapping surfaces are supported later, their z-order is a separate explicit layout rule; the DOM and keyboard reading order must remain logical.
+
+**Decisions postponed to building-block design:** precise token values; which individual variants permit which overrides; breakpoint values; allowed minimum/maximum dimensions; controls for decorative media and accessibility fallbacks.
 
 ## 8. Drafts, revisions, history, archive and recovery
 
