@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.7 (sizing review and spacing proposal)  
+**Document version:** 1.8 (background design framework proposal)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -797,6 +797,129 @@ The future admin interface should offer **Default / Inherit / Custom / Reset** a
 - Exact numeric caps, responsive interpolation, optional per-side overrides and implementation of the boundary-gap rule remain **pending**.
 
 **Standards/reference:** MDN CSS Gap — https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/gap ; MDN logical margin/padding — https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Logical_properties_and_values/Margins_borders_padding ; MDN margin collapsing — https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Box_model/Margin_collapsing ; W3C WCAG 2.2 text spacing — https://www.w3.org/TR/WCAG22/#text-spacing .
+
+## 7F. Background system — default-first proposal by structural level
+
+**Status:** Recommendations to review, not approved visual themes or implemented website CSS/database tables. This extends the default-first principle in §7A, structural/layout separation in §7B, design validation in §7C, sizing in §7D, and spacing in §7E. The actual palette, asset choices and visual variants remain undecided.
+
+### 7F.1 Background versus content, inheritance versus transparency
+
+A background **paints a node's surface**. It does not create a new node in the structural tree, and it does not set that node's dimensions: a section with an image background still grows according to its content and sizing constraints.
+
+- **Site surface:** always has a solid, legible fallback design colour, even if another background is selected.
+- **Page/subpage:** can paint a background; default suggested **transparent**, revealing the site's surface unless a page design preset says otherwise.
+- **Section:** default suggested **transparent**, revealing whatever is behind it in the page; custom background or preset allowed.
+- **Group:** default suggested **transparent**, except styled container/card presets may define their own solid surface.
+- **Element:** default transparent for text/headings; element-type presets may paint cards, buttons, badges or other bounded surfaces. Ordinary text need not be wrapped in opaque cards.
+
+**Crucial distinction:** CSS background properties are generally **not inherited** from the parent. A transparent child visually shows the surface beneath it; it does **not** copy or inherit the parent's actual background paint values or image crop. In the editor, `inherit theme` should mean reuse a named **design token/configuration**, while `transparent` explicitly means paint no opaque surface.
+
+A local background changes only the node's painted box and defined subtree; it must not mutate site, page or sibling settings. A background-image asset used as decoration is not a content image and must not replace accessible meaningful content.
+
+### 7F.2 Background type registry (recommended)
+
+| Mode | Suggested default/availability | Important constraints |
+| --- | --- | --- |
+| `transparent` / none | Default for most inner surfaces | Reveals rendered surface beneath; contrast must still work |
+| `solid` | Site always has fallback solid colour; optional at every permitted scope | Use theme colour token as default; support validated custom colour |
+| `gradient` | Optional on site/page/section/group; element-specific where supported | Restrict to validated linear/radial stop definitions rather than arbitrary CSS strings |
+| `image` | Optional decorative background on page/section/group or supported element | File validation, focal point, overlay, dimensions, fallback and optimisation |
+| `animated_image` (GIF or optimised equivalent) | Advanced **opt-in**, not default | Respect reduced-motion preferences; static fallback; performance limits |
+| `video` | **Deferred** as optional background type | If added later, require muted/inert autoplay policy, explicit stop/pause, poster and reduced-motion fallback |
+
+Plain page/section background changes should be easy to make through the future admin interface. Do not require an image or unique colour for every section.
+
+### 7F.3 Recommended scope by level
+
+| Level | Default | Customisation | Why |
+| --- | --- | --- | --- |
+| **Site** | Solid theme token + in-code fallback colour | Change global theme token/background preset | Guarantees a readable baseline |
+| **Page / subpage** | Transparent, showing site surface | Solid, gradient or media background | Independent page identity without forcing new styling |
+| **Section** | Transparent | Solid, gradient or media background; per-section overlay | Supports alternating sections and full-bleed designs |
+| **Group** | Transparent | Solid, gradient, image where meaningful | Makes cards/panels possible without nested clutter |
+| **Element** | Usually transparent; type-specific presets for visible surfaces | Allowed property overrides on compatible element types | Avoid overcomplicated per-text backgrounds |
+
+**Full-bleed section background versus constrained text:** The background may fill the entire section width while its inner content remains in a readable max-width wrapper. A full-bleed background does not mandate full-width paragraphs or fixed section height.
+
+### 7F.4 Recommended background rendering model
+
+Treat the following as **one surface composition**, not five extra structural nodes:
+
+```text
+[ top ]      foreground content: headings, links, cards, controls
+             optional readability scrim/tint (between content and media)
+             decorative image/GIF/gradient, if selected
+             base background solid colour (always safe fallback for media)
+[ bottom ]   surface of ancestor visible only through transparency
+```
+
+- A **readability scrim** is the dark/light/tinted layer **behind text but over media**. It is not the interactive `Overlay` layer defined in §7B.7, which refers to visually overlapping interface/decorative content.
+- For image/gradient stacks, set an explicit paint order; in CSS background-image lists, the **first listed image layer paints on top**.
+- Foreground text/links and interactive controls must remain clickable and keyboard accessible. Decorative layers must not intercept pointer or keyboard events.
+- If an image fails to load, base background and text colours must still provide acceptable readability.
+
+### 7F.5 Image sizing, crop and media behaviour
+
+| Option | Suggested initial behaviour | Why |
+| --- | --- | --- |
+| Image scaling | `cover` by default for immersive section backgrounds | Fills container, but **crops** when aspect ratios differ |
+| Preserve entire asset | `contain` where explicitly requested; pair with colour/fill and no-repeat option | Avoid distortion; may leave uncovered areas |
+| Image position | Centre as default, optional focal point X/Y | Avoid cutting off the important subject |
+| Repeat | `no-repeat` default | Prevent accidental tiling |
+| Attachment | `scroll` default; do not rely on fixed/parallax | Reliable mobile/zoom behaviour |
+| Media quality | Use compressed responsive formats and appropriate resolution | Reduce page weight |
+| Animation | Off by default; opt-in with static poster/frame | Better performance and reduced motion |
+| Height | Background follows owning container's content-based height | Prevent text clipping and layout shifts |
+
+**Do not force an image to stretch without preserving its aspect ratio.** Unlike content images, CSS decorative backgrounds do not provide screen-reader alternative text; if an image conveys required information, store it as a genuine image element with descriptive alt text/caption.
+
+### 7F.6 Contrast, accessibility and validation
+
+**Requirements for future build-time validation:**
+
+1. Validate the background type and payload against an allowlist; store structured stops/colours/asset IDs, not unrestricted raw CSS or user-submitted scripts.
+2. Every media background needs a validated **solid fallback colour**, controlled asset type, dimensions/file size and safe-source reference.
+3. Evaluate contrast for effective foreground/background combinations, including semi-transparent layers and variable images. Aim at WCAG 2.2 AA: at least **4.5:1 for normal text** and **3:1 for large text**, where applicable; a sampling estimate is not a blanket guarantee over complex imagery. Use conservative scrims or opaque text backing when contrast varies.
+4. Check narrow layouts, longer text, high zoom, dark/light themes if supported, and failure to load media.
+5. Animated assets: provide still fallback and respect `prefers-reduced-motion`. If moving content starts automatically and continues for more than five seconds alongside other content, ensure applicable pause/stop/hide controls under WCAG rules. Do not assume a CSS GIF can be paused reliably; replacing it with a controllable format can be preferable.
+6. Reject dangerous or unsupported file types, untrusted external embeds, malformed gradients and potentially unsafe URLs. Sanitise rendering outputs. Approve remote media hosts explicitly; don't publish credentials or private source paths.
+7. Ensure content is not encoded solely as a decorative background. The asset should be optional to understanding content.
+8. Where evidence or tooling cannot establish safe legibility, **warn/block publication** or require an opaque text surface; preserve last published good design.
+
+### 7F.7 Storage, revision and editing model
+
+**Agreed architectural direction:** Editable global design defaults, per-node background selections and scoped overrides live in the future Supabase database; the rendering components, allowed property definitions, CSS engine and known-good fallback remain in GitHub.
+
+**Proposed stored configuration example (illustrative only, not final SQL/schema):**
+
+```json
+{
+  "background": {
+    "mode": "image",
+    "asset_id": "approved-public-media-id",
+    "fallback_color": "#F5F5F5",
+    "position": {"x": 50, "y": 50},
+    "fit": "cover",
+    "repeat": false,
+    "attachment": "scroll",
+    "scrim": {"color": "#101010", "opacity": 0.45},
+    "motion_fallback_asset_id": "approved-still-image-id"
+  }
+}
+```
+
+- A background mode can be `default` / `inherit theme token` / `transparent` / `custom`; make these meanings explicit in the editor. Do not conflate a transparent value with missing configuration.
+- Prefer storing background media in **Supabase Storage or another explicit public asset pipeline**, with metadata in Supabase. A private storage object cannot simply be linked from a public static site without authorisation. Do not make Supabase service-role keys public.
+- Keep files and settings **versioned** (e.g. immutable asset paths or content-hashed filenames), allowing the exact media asset and settings to be restored for a previous published revision. Avoid overwriting an existing media URL in place and invalidating cache/history.
+- Only publish approved, licenced or owned assets; track attribution/licence where necessary and create accessible fallbacks.
+- A static GitHub Pages deployment may embed references to public optimised media assets, but runtime rendering of already published CSS/HTML should not require a **live database read**.
+- The admin interface should preview the rendered page at mobile and desktop sizes and display differences between `inherit`, `transparent`, `solid` and media modes.
+
+### 7F.8 Remaining choices for detailed design
+
+Still undecided: exact colour palette/theme and dark mode; which backgrounds each element category supports; global versus page/section background image presets; image storage and compression pipeline; maximum animated asset size/duration; colour stop limits; responsive crop/focal point behaviour; overlay contrast checking; asset lifetime and build/export approach. These are decisions to make before schema implementation, not present website features.
+
+**References:** MDN CSS `background` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background); MDN CSS `background-size` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-size); MDN CSS `background-image` (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/background-image); W3C WCAG 2.2 (https://www.w3.org/TR/WCAG22/).
 
 ## 8. Drafts, revisions, history, archive and recovery
 
