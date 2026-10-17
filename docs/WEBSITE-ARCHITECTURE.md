@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.5 (design validation and typography proposal)  
+**Document version:** 1.6 (responsive sizing recommendations)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -624,6 +624,79 @@ When publishing: retrieve an authorised, coherent design/content snapshot → va
 3. Establish exact accepted CSS units, override range limits and responsive breakpoints.
 4. Define background/image overlay checks, contrast sampling strategy and media hosting policy.
 5. Determine validator severity levels, editor error messages, and how to recover from invalid designs.
+
+## 7D. Sizing and responsive behaviour — proposed defaults by structural level
+
+**Status:** Recommended sizing contract for review, not approved numerical design tokens or implemented website CSS. The previously approved principle of default-first configuration remains in force. These recommendations do not redesign Portfolio-Website-2.
+
+### 7D.1 Baseline sizing concepts
+
+- **Width/height:** actual rendered extent of a box, constrained by parent and available space.
+- **Auto:** let content and normal document flow determine size where possible. Auto is the default for height.
+- **Min/max:** optional constraints on the allowed range of a computed size. They should remain responsive.
+- **Full bleed vs readable content:** a page or section background may occupy the full available viewport width while inner content follows a narrower max-width and responsive gutters.
+- **Sizing ownership:** the parent controls layout tracks/available width and gaps; the child controls its min/max and intrinsic dimensions within that allocation.
+- **Flex/grid gap:** space reduces what remains for fractional columns. Two 50% tracks plus a gap do *not* fit unless sizing accounts for the gap.
+- **Units:** use `rem`, percentages, CSS functions `min()`/`max()`/`clamp()`, `fr` for grid tracks, viewport units for special full-viewport uses, and pixel dimensions only where appropriate. Percentage heights require a suitably definite containing block and are not a default.
+
+### 7D.2 Recommendations by level
+
+| Structural level | Default width | Default height | Optional scope | Why |
+| --- | --- | --- | --- | --- |
+| **Site** | 100% of available viewport / document width | Natural document height | Site-wide outer shell and responsive tokens | Avoid fixed desktop canvas and horizontal overflow |
+| **Page/subpage** | Full available width, with optional content max-width container | Auto; can exceed many screens | Page shell, gutters, special full-height hero | Subpages can be short or long without extra empty space |
+| **Section** | Full parent/page span; **background may be full bleed** | Auto | Full-bleed or constrained section content width; optional min-height | Separate decorative canvas from readable content |
+| **Group** | Stretch to allocated parent track/column by default | Auto based on children | Percentage/fraction width, min/max width, aspect ratio in valid cases | Support nested stack/row/grid modes |
+| **Element** | Appropriate intrinsic/stretch sizing for element type and parent mode | Auto except media with aspect ratio | Width, span, align-self, min/max bounds if supported | Avoid text clipping or arbitrary fixed cards |
+
+### 7D.3 Suggested starting design tokens (not final)
+
+| Token | Proposed value | Use |
+| --- | --- | --- |
+| `content_max_width` | `75rem` (~1200px at 16px root) | Main content wrapper, *not* forced on full-bleed backgrounds |
+| `editorial_max_width` | `45rem` (~720px at 16px root) | Narrow reading/essay areas |
+| `body_line_length` | target ~65–75 characters (`ch`-based measure, font-dependent) | Paragraph reading measure |
+| `page_gutter` | responsive token, numeric values TBD in spacing stage | Safe horizontal breathing room |
+| `section_gap` | `0` | Space between adjacent sections; already selected |
+| `default_height` | `auto` | Page/section/group/text component height |
+| `media_fit` | `contain` when preserving full image is important; `cover` for deliberate crops | Must be selected per media purpose |
+
+Avoid defining every section as a screen tall. **Exception:** an introduction/hero may use `min-height: 100svh` if desired, but must still expand for text, browser controls and zoomed content.
+
+### 7D.4 Width allocation examples
+
+- Two equal columns: `grid-template-columns: repeat(2, minmax(0, 1fr))`; the grid engine accounts for the gap.
+- Unequal split: `minmax(0, 2fr) minmax(0, 1fr)`; weights reflect remaining space, not precisely 66.67% and 33.33% before gaps.
+- Flexible tiles: `repeat(auto-fit, minmax(min(100%, 18rem), 1fr))`, adapted to supported contexts. Actual thresholds require testing.
+- A full-width section may have an image background, but paragraphs can sit within a separate max-width wrapper.
+- Nested groups get their own allocated width; their layout is selected independently from the parent section's layout.
+
+### 7D.5 Responsive layout policy
+
+**Proposed initial viewport breakpoints:** below `40rem` (~640px): primarily stack; from `40rem` to below `64rem` (~1024px): flexible one/two columns; `64rem` and above: multi-column where suitable. These are *starting points*, not device hard-coded assumptions.
+
+- Prefer **container queries** for reusable groups or components whose layout should respond to available parent width.
+- Use viewport media queries for site shell, navigation, and page-wide policies.
+- Default responsive transformation: collapse multicolumn arrangements into a logical vertical sequence where necessary; preserve reading and tab order.
+- Test small screens, text enlargement, 200% zoom and 320 CSS-pixel reflow; avoid horizontal scroll for ordinary paragraphs and controls.
+- Do not automatically scale down all font sizes according to word count. Use normal wrapping, natural expansion and accessible type tokens.
+- Long words, long URLs, translated text, missing media and images with very different aspect ratios must fail gracefully.
+
+### 7D.6 Validation and precedence
+
+- All editable sizing values will eventually live as validated global and local configuration in Supabase; the renderer and fallback defaults remain in GitHub.
+- `default`, `inherit`, `custom` and `reset` follow Section 7A. Note: physical width and height are generally **not inherited CSS properties**; `inherit` in the future editor would refer only to a documented design token/preset, not blindly copy a parent's computed height.
+- Respect min/max consistency (`min ≤ max`), recognised units and numerical bounds. Prevent non-finite values, impossible aspect ratios, negative sizes, oversized off-screen content and invalid combinations of position/span/layout.
+- Use `box-sizing: border-box`-equivalent consistent sizing; account for borders and padding.
+- Flag fixed-height text containers likely to clip at browser zoom; block unsafe publication where content becomes inaccessible.
+- Whenever a child is hidden/removed, normal flow and layout recompute without leaving an artificial empty slot.
+- When a custom configuration cannot be safely rendered, retain the last approved published design rather than silently deploying a broken layout.
+
+**Reference material:** MDN CSS container queries (https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries); MDN CSS clamp (https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/clamp); W3C WCAG 2.2 Reflow (https://www.w3.org/WAI/WCAG22/Understanding/reflow.html).
+
+### 7D.7 Remaining sizing decisions
+
+Finalise gutters/padding in the spacing stage; decide allowable per-node sizing controls and exact breakpoint/test matrix; set minimum interactive target sizes in accessibility review; define how editors preview narrow-width compositions; check desktop/mobile parity against Portfolio-Website-2. Full-bleed hero, image aspect ratio policies and advanced overlays are optional designs, not default behaviours for all sections.
 
 ## 8. Drafts, revisions, history, archive and recovery
 
