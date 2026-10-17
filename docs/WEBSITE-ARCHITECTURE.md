@@ -1,7 +1,7 @@
 # Portfolio Website — Infrastructure & Structural Design Specification
 
 **Document ID:** WEB-ARCH-001  
-**Document version:** 1.3 (layout and visual layering framework)  
+**Document version:** 1.4 (default-first design rule)  
 **Date:** 17 October 2026  
 **Canonical location:** `docs/WEBSITE-ARCHITECTURE.md` in `SteinXI/Portfolio-Website-3`  
 **Scope:** Site architecture, data and structural conventions, identity, hierarchy, planned design capabilities, security, publishing and technical roadmap.  
@@ -398,6 +398,46 @@ This clarifies the earlier high-level cascade. It is a **framework proposal**, n
 **Separate structure from visual stacking:** Hierarchical depth and codes (e.g. `P01.S01.G02.E-T01`) identify ownership, not CSS layering or left/right position. If overlapping surfaces are supported later, their z-order is a separate explicit layout rule; the DOM and keyboard reading order must remain logical.
 
 **Decisions postponed to building-block design:** precise token values; which individual variants permit which overrides; breakpoint values; allowed minimum/maximum dimensions; controls for decorative media and accessibility fallbacks.
+
+### 7A.9 Default-first styling and explicit exceptions — selected design principle
+
+**Principle:** Every new page, section, group and element should be usable with **no custom design configuration**. Website-wide defaults supply consistent typography, heading appearance, paragraph style, text colour, background behaviour, spacing, gaps and layout. Custom settings are opt-in, never required for ordinary content.
+
+**Proposed resolution:**
+
+1. **Site defaults:** Named tokens and standard rules for headings (by semantic role), paragraphs, font family, font sizes, line height, font weight, colours, section gap (default **0**), internal spacing, responsive behaviour and layout defaults.
+2. **Component defaults:** An H2 or paragraph uses its role-specific default style rather than treating every property as an unqualified inherited value. Normal paragraph and heading styles remain consistent throughout the site.
+3. **Section override (optional):** A section can change an eligible property for itself and its descendants, e.g. a local text-colour theme or spacing scale. This must not silently override semantic heading levels or force every child to the same font size.
+4. **Nested group override (optional):** A group can override applicable inherited settings only within its own subtree.
+5. **Element override (optional):** A particular paragraph/heading/image can depart from defaults where its element type permits it. Otherwise it uses the normal effective style.
+6. **Responsive and accessibility safeguards:** Readability, keyboard order, contrast and responsive rules still apply. Exact CSS precedence will be specified alongside component tokens.
+
+**Three meaningful editor choices per setting:**
+- `default`: use the standard type/component value (such as the site's predefined H2 or paragraph text size).
+- `inherit`: follow the effective inheritable value from the parent, if that property supports inheritance.
+- `custom`: explicitly specify a validated override.
+- **Reset action:** clear a custom setting and return to its default behaviour.
+
+These should not be confused: site-standard heading typography is often **default**, while text colour may **inherit** from a section. The editor should initially show `default` without requiring the user to choose every property manually.
+
+**Illustration:**
+
+```text
+SITE: standard H1/H2/H3, paragraph style, colour, spacing; section gap = 0
+  PAGE A: no custom values -> site defaults
+    SECTION 1: no custom values -> standard heading and paragraph appearance
+      H2: default heading style
+      Paragraph: default paragraph style
+    SECTION 2: custom text colour and custom internal gap
+      H2: default H2 size/weight, section text colour where permitted
+      Paragraph A: standard paragraph size, section text colour
+      Paragraph B: custom font size; other style properties default/inherit
+    SECTION 3: no custom values -> standard appearance resumes
+```
+
+**Scope rule:** An override affects only the relevant node/subtree and properties designated as inheritable; neighbouring or later sections are not affected. A section-wide spacing override does not automatically replace every element's local margin and padding. To prevent cumulative spacing and CSS conflicts, the owning parent controls gaps between its direct children, while the child controls its own internal padding.
+
+**Performance/maintenance intent:** Fewer stored overrides, consistent appearance, easier global updates, and less manual configuration. Updating a global token will update all components still using the relevant default; specifically customised elements keep their overrides. Optional saved themes/variants remain later design tasks.
 
 ## 7B. Layout and visual layer rules — framework specification
 
